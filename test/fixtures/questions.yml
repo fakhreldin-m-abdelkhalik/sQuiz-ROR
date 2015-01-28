@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  text: MyText
+  mark: 1.5
+  choices: MyText
+  right_answer: MyString
+
+two:
+  text: MyText
+  mark: 1.5
+  choices: MyText
+  right_answer: MyString

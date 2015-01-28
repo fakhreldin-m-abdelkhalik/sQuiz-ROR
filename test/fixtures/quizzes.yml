@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  subject: MyString
+  duration: 1
+  no_of_MCQ: 1
+  no_of_rearrangeQ: 1
+
+two:
+  name: MyString
+  subject: MyString
+  duration: 1
+  no_of_MCQ: 1
+  no_of_rearrangeQ: 1
