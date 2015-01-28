@@ -6,6 +6,7 @@ class CreateQuizzes < ActiveRecord::Migration
       t.integer :duration
       t.integer :no_of_MCQ
       t.integer :no_of_rearrangeQ
+      t.belongs_to :instructor, index: true
 
       t.timestamps
     end
