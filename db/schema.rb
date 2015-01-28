@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150128164001) do
+ActiveRecord::Schema.define(version: 20150128181437) do
 
   create_table "graph_managers", force: true do |t|
     t.datetime "created_at"
@@ -19,17 +19,16 @@ ActiveRecord::Schema.define(version: 20150128164001) do
   end
 
   create_table "graphs", force: true do |t|
-    t.integer  "graphManager_id"
+    t.integer  "graph_manager_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "graphs", ["graphManager_id"], name: "index_graphs_on_graphManager_id"
+  add_index "graphs", ["graph_manager_id"], name: "index_graphs_on_graph_manager_id"
 
   create_table "groups", force: true do |t|
-    t.integer  "instructor_id"
     t.string   "name"
-    t.string   "group_id"
+    t.integer  "instructor_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -52,47 +51,50 @@ ActiveRecord::Schema.define(version: 20150128164001) do
   add_index "groups_students", ["group_id"], name: "index_groups_students_on_group_id"
   add_index "groups_students", ["student_id"], name: "index_groups_students_on_student_id"
 
+  create_table "instructors", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "questions", force: true do |t|
-    t.integer  "quiz_id"
     t.text     "text"
     t.float    "mark"
     t.text     "choices"
+    t.string   "right_answer"
+    t.integer  "quiz_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "right_answer"
   end
 
   add_index "questions", ["quiz_id"], name: "index_questions_on_quiz_id"
 
   create_table "quizzes", force: true do |t|
-    t.integer  "instructor_id"
     t.string   "name"
     t.string   "subject"
     t.integer  "duration"
     t.integer  "no_of_MCQ"
     t.integer  "no_of_rearrangeQ"
+    t.integer  "instructor_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "quizzes", ["instructor_id"], name: "index_quizzes_on_instructor_id"
 
-  create_table "student_quiz_results", force: true do |t|
+  create_table "student_result_quizzes", force: true do |t|
+    t.float    "result"
     t.integer  "quiz_id"
     t.integer  "student_id"
-    t.string   "result"
-    t.string   "float"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "student_quiz_results", ["quiz_id"], name: "index_student_quiz_results_on_quiz_id"
-  add_index "student_quiz_results", ["student_id"], name: "index_student_quiz_results_on_student_id"
+  add_index "student_result_quizzes", ["quiz_id"], name: "index_student_result_quizzes_on_quiz_id"
+  add_index "student_result_quizzes", ["student_id"], name: "index_student_result_quizzes_on_student_id"
 
-  create_table "users", force: true do |t|
+  create_table "students", force: true do |t|
     t.string   "name"
-    t.string   "email"
-    t.string   "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
