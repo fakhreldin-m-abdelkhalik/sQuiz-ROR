@@ -5,7 +5,7 @@ class Api::InstructorsRegistrationsController < Devise::RegistrationsController
   respond_to :json
 
   def create
-    instructor = instructor.create(instructor_params)
+    instructor = Instructor.create(instructor_params)
 
     if instructor.save
       sign_in  instructor
