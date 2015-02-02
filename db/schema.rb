@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150128181437) do
+ActiveRecord::Schema.define(version: 20150202113137) do
 
   create_table "graph_managers", force: true do |t|
     t.datetime "created_at"
@@ -55,7 +55,22 @@ ActiveRecord::Schema.define(version: 20150128181437) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "email",                  default: "", null: false
+    t.string   "encrypted_password",     default: "", null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.string   "authentication_token"
   end
+
+  add_index "instructors", ["authentication_token"], name: "index_instructors_on_authentication_token", unique: true
+  add_index "instructors", ["email"], name: "index_instructors_on_email", unique: true
+  add_index "instructors", ["reset_password_token"], name: "index_instructors_on_reset_password_token", unique: true
 
   create_table "questions", force: true do |t|
     t.text     "text"
@@ -97,6 +112,21 @@ ActiveRecord::Schema.define(version: 20150128181437) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "email",                  default: "", null: false
+    t.string   "encrypted_password",     default: "", null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.string   "authentication_token"
   end
+
+  add_index "students", ["authentication_token"], name: "index_students_on_authentication_token", unique: true
+  add_index "students", ["email"], name: "index_students_on_email", unique: true
+  add_index "students", ["reset_password_token"], name: "index_students_on_reset_password_token", unique: true
 
 end

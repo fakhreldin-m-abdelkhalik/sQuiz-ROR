@@ -1,8 +1,11 @@
 module Api
 	class QuizzesController < ApplicationController
+		#before_action :authenticate_instructor!, only: [:create,:destroy,:show,:index]
+		respond_to :json
+
 		#This method is used to get quiz by taking the quiz id from the client.
 		def show
-			quiz = Quiz.find(params[:id])
+			quiz = current_instructor.quizzes.find(params[:id])
 			render json: quiz, status: 200
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
@@ -10,6 +13,7 @@ module Api
 		def create
 			quiz = Quiz.new(quiz_params)
 			if quiz.save
+				current_instructor.quizzes << quiz
 				render json: quiz, status: 201
 			else
 				render json: quiz.errors, status: 422
