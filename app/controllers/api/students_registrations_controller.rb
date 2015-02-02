@@ -8,7 +8,7 @@ class Api::StudentsRegistrationsController < Devise::RegistrationsController
     student = Student.create(student_params)
 
     if student.save
-      sign_in 
+      sign_in  student
       render status: 200,
               json: { success: true,
                       info: "Registered",
