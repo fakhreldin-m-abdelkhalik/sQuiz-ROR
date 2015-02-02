@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   namespace :api do
   
     devise_scope :student do
-      post 'students/registrations' => 'students_egistrations#create', as: 'student_register'
+      post 'students/registrations' => 'students_registrations#create', as: 'student_register'
       post 'students/sessions' => 'students_sessions#create', as: 'student_login'
       delete 'students/sessions' => 'students_sessions#destroy', as: 'student_logout'
     end
