@@ -1,4 +1,4 @@
-class Api::instructorsSessionsController < Devise::SessionsController
+class Api::InstructorsSessionsController < Devise::SessionsController
   skip_before_filter :verify_authenticity_token,
                      :if => Proc.new { |c| c.request.format == 'application/json' }
 
