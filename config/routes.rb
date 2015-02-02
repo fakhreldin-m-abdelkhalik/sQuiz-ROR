@@ -5,15 +5,15 @@ Rails.application.routes.draw do
   namespace :api do
   
     devise_scope :student do
-      post 'students/registrations' => 'StudentsRegistrations#create', as: 'student_register'
-      post 'students/sessions' => 'StudentsSessions#create', as: 'student_login'
-      delete 'students/sessions' => 'StudentsSessions#destroy', as: 'student_logout'
+      post 'students/registrations' => 'students_egistrations#create', as: 'student_register'
+      post 'students/sessions' => 'students_sessions#create', as: 'student_login'
+      delete 'students/sessions' => 'students_sessions#destroy', as: 'student_logout'
     end
 
     devise_scope :instructor do
-      post 'instructors/registrations' => 'InstructorsRegistrations#create', as: 'instructor_register'
-      post 'instructors/sessions' => 'InstructorsSessions#create', as: 'instructor_login'
-      delete 'instructors/sessions' => 'InstructorsSessions#destroy', as: 'instructor_logout'
+      post 'instructors/registrations' => 'instructors_registrations#create', as: 'instructor_register'
+      post 'instructors/sessions' => 'instructors_sessions#create', as: 'instructor_login'
+      delete 'instructors/sessions' => 'instructors_sessions#destroy', as: 'instructor_logout'
     end
 
   end
