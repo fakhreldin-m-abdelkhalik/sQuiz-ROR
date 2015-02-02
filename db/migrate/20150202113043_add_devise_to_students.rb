@@ -30,6 +30,8 @@ class AddDeviseToStudents < ActiveRecord::Migration
       # t.string   :unlock_token # Only if unlock strategy is :email or :both
       # t.datetime :locked_at
 
+      ## Token authenticatable
+      t.string :authentication_token
 
       # Uncomment below if timestamps were not included in your original model.
       # t.timestamps
@@ -37,6 +39,7 @@ class AddDeviseToStudents < ActiveRecord::Migration
 
     add_index :students, :email,                unique: true
     add_index :students, :reset_password_token, unique: true
+    add_index :students, :authentication_token, :unique => true
     # add_index :students, :confirmation_token,   unique: true
     # add_index :students, :unlock_token,         unique: true
   end
