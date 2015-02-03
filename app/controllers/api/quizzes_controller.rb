@@ -24,7 +24,7 @@ module Api
 		def publish
 			quiz = Quiz.find(params[:id])
 			group = Group.find(params[:group_id])
-			quiz.publish(params[:group_id])
+			quiz.publish_quiz(params[:group_id])
 			if (group.quizzes.include?(quiz))
 				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 201
 			else

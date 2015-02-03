@@ -17,7 +17,7 @@ class Quiz < ActiveRecord::Base
 		quiz = self
 		group.quizzes << quiz
 		group.students.each  do |student|
-			stundent.quizzes << quiz 
+		student.quizzes << quiz 
 		end
 	end
 end
