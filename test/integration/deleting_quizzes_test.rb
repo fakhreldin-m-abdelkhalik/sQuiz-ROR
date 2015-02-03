@@ -3,8 +3,9 @@ class DeletingQuizzesTest < ActionDispatch::IntegrationTest
 	
 	test 'deletes quiz' do
 		delete "api/quizzes/#{@quiz.id}"
-		assert_equal 204,response.status
+		assert_equal 204, response.status
 	end
+	
 	test 'fails to delete quiz' do
 		delete "api/quizzes/#{@quiz.id+1}"
 		assert_equal 404,response.status

@@ -26,9 +26,9 @@ module Api
 			group = Group.find(params[:group_id])
 			quiz.publish_quiz(params[:group_id])
 			if (group.quizzes.include?(quiz))
-				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 201
+				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
 			else
-				render json: { success: false, data:{}, :info => "quiz isn't published" }, status: 422
+				render json: { success: false, data:{}, :info => "quiz isn't published" }, status: 500
 			end
 		end
 		#This method deletes the quiz and the corresponding questions
@@ -58,7 +58,6 @@ module Api
 			end
 		end
 
-		end
 		private
 		def quiz_params
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
