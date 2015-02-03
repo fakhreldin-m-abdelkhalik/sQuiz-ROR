@@ -7,6 +7,8 @@ Rails.application.routes.draw do
     resources :quizzes, except: [:index, :edit]
     post '/quizzes/publish/:id', to: 'quizzes#publish'
 
+    post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'
+
     devise_scope :student do
       post 'students/registrations' => 'students_registrations#create', as: 'student_register'
       post 'students/sessions' => 'students_sessions#create', as: 'student_login'

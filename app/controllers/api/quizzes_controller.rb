@@ -44,9 +44,27 @@ module Api
 				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
 			end		
 		end
+		#This method creates new question by taking the question attributes attributes from JSON object
+		#and assigns this question to the current quiz using the sent quiz id.  
+		#and it returns the JSON representation of the newly created object.
+		def add_question
+			question = Question.new(question_params)
+			quiz = Quiz.find(params[:quiz_id])
+			if question.save
+				quiz.questions << question
+				render json: { success: true, data:{:question => question}, info:{} }, status: 201
+			else
+				render json: { success: false, data:{}, :info => question.errors }, status: 422
+			end
+		end
+
+		end
 		private
 		def quiz_params
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
+		end
+		def question_params
+			params.require(:question).permit(:text, :mark, :choice, :right_answer)
 		end
 	end
 end
