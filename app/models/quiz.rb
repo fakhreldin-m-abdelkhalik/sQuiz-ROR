@@ -10,4 +10,14 @@ class Quiz < ActiveRecord::Base
 	validates :name ,presence: true
 	validates :subject ,presence: true
 	validates :duration ,presence: true
+
+	#This methods takes group_id as a parameter and assigns this quiz to the group and students in this group.
+	def publish_quiz ( group_id )
+		group = Group.find(group_id)
+		quiz = self
+		group.quizzes << quiz
+		group.students.each  do |student|
+			stundent.quizzes << quiz 
+		end
+	end
 end

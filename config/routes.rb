@@ -5,7 +5,8 @@ Rails.application.routes.draw do
   
   namespace :api do
     resources :quizzes, except: [:index, :edit]
-  
+    post '/quizzes/publish/:id', to: 'quizzes#publish'
+
     devise_scope :student do
       post 'students/registrations' => 'students_registrations#create', as: 'student_register'
       post 'students/sessions' => 'students_sessions#create', as: 'student_login'

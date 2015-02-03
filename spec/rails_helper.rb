@@ -52,7 +52,7 @@ RSpec.configure do |config|
   #end
 
 
-config.before(:suite) do
+  config.before(:suite) do
     begin
       DatabaseCleaner.start
     ensure
