@@ -3,11 +3,20 @@ module Api
 		#skip_before_filter :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
 		#before_action :authenticate_instructor!, only: [:create,:destroy,:show,:index]
 		respond_to :json
-
+		#This method returns to the client list of all quizzes the student or the instructor has.
+		def index
+			if (current_instructor)
+				quizzes = current_instructor.quizzes
+			else
+				quizzes = current_student.quizzes
+			end	
+			render json: { data:{:quizzes => quizzes} }, status: 200
+		end
 		#This method is used to get quiz by taking the quiz id from the client.
 		def show
 			quiz = current_instructor.quizzes.find(params[:id])
 			render json: { data:{:quiz => quiz} }, status: 200
+			#view question_params
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
 		#and it returns the JSON representation of the newly created object and its location.
@@ -63,7 +72,7 @@ module Api
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
 		end
 		def question_params
-			params.require(:question).permit(:text, :mark, :choice, :right_answer)
+			params.require(:question).permit(:text, :mark, :right_answer,:choices => [])
 		end
 	end
 end
