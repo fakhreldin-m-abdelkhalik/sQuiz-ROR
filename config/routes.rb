@@ -17,4 +17,7 @@ Rails.application.routes.draw do
     end
 
   end
+
+    post 'groups/student/add' => 'groups#add'
+    post 'groups/student/remove' => 'groups#remove'
 end
