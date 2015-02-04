@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     post '/quizzes/publish/:id', to: 'quizzes#publish'
 
     post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'
+    patch '/quizzes/editquestion/:question_id', to: 'quizzes#edit_question'
 
     devise_scope :student do
       post 'students/registrations' => 'students_registrations#create', as: 'student_register'

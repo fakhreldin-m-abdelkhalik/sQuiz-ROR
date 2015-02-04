@@ -66,6 +66,16 @@ module Api
 				render json: { success: false, data:{}, :info => question.errors }, status: 422
 			end
 		end
+		#This methods edits a question in quiz by taking the desired new question attributes from JSON objec
+		#and changes the current question atrributes.
+		def edit_question
+			question = Question.find(params[:question_id])
+			if (question.update(question_params))
+				render json: { success: true, data: { :question => question }, info:{} }, status: 200
+			else
+				render json: { success: false, data: {}, info: question.errors}, status: 422 #client submitted invalid data
+			end		
+		end
 
 		private
 		def quiz_params
