@@ -1,7 +1,7 @@
 class Student < ActiveRecord::Base
-	before_save :ensure_authentication_token
+	acts_as_token_authenticatable
  
- 	devise :database_authenticatable, :token_authenticatable, :registerable,
+ 	devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
 	has_and_belongs_to_many :groups
