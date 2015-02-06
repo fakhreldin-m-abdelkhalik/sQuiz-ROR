@@ -16,8 +16,8 @@ Rails.application.routes.draw do
       delete 'instructors/sessions' => 'instructors_sessions#destroy', as: 'instructor_logout'
     end
 
-  end
-
     post 'groups/student/add' => 'groups#add'
     post 'groups/student/remove' => 'groups#remove'
+  end
+
 end
