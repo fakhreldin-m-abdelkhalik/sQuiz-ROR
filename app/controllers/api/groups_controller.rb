@@ -12,7 +12,19 @@ class Api::GroupsController < ApplicationController
              json: { success: false,
                         info: "Student does not exit",
                         data: {} }
-      
+
+    elsif(!group)
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Group does not exit",
+                        data: {} }  
+
+    elsif (group.students.include?(student))
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Student already exists in this group",
+                        data: {} }  
+        
     elsif(group.instructor == current_instructor)
 
       group.students << student
