@@ -28,7 +28,7 @@ gem 'spring',        group: :development
 
 gem 'devise'
 
-gem 'devise-token_authenticatable'
+gem 'simple_token_authentication'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
