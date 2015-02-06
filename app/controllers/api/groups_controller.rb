@@ -1,6 +1,6 @@
 class Api::GroupsController < ApplicationController
   
-  respond_to :json
+  acts_as_token_authentication_handler_for Instructor
 
   def add
 
