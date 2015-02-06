@@ -1,6 +1,6 @@
 module Api
 	class QuizzesController < ApplicationController
-		#skip_before_filter :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
+		acts_as_token_authentication_handler_for Instructor
 		before_action :authenticate_instructor!, only: [:create,:publish,:destroy,:add_question,:edit_question]
 		respond_to :json
 		#This method returns to the client list of all quizzes the student or the instructor has.
@@ -12,7 +12,7 @@ module Api
 				quizzes = current_student.quizzes
 				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
 			else
-				render json: { success:false, data:{},info:{"You have to login first."} }, status: 401
+				render json: { success:false, data:{},info:"You have to sign-in first."}, status: 401
 			end
 		end
 		#This method is used to get quiz by taking the quiz id from the client.
@@ -26,7 +26,7 @@ module Api
 				questions = quiz.questions
 				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200	
 			else
-				render json: { success:false, data:{},info:{"You have to login first."} }, status: 401
+				render json: { success:false, data:{},info:"You have to sign-in first." }, status: 401
 			end
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
@@ -44,12 +44,12 @@ module Api
 		def publish
 			quiz = Quiz.find(params[:id])
 			group = Group.find(params[:group_id])
-			if(quiz.instructor == current_instructor)
+			if(quiz.instructor == current_instructor && group.instructor == current_instructor)
 				quiz.publish_quiz(params[:group_id])
 				if (group.quizzes.include?(quiz))
 					render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
 				else
-					render json: { success: false, data:{}, :info => "Quiz is not published." }, status: 500
+					render json: { success: false, data:{}, info: "Quiz is not published." }, status: 500
 				end
 			else
 				render json: { success: false, data: {}, info: "Quiz is not found" }, status: 422
