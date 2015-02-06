@@ -7,7 +7,13 @@ class Api::GroupsController < ApplicationController
     student = Student.find(params[:student][:id])
     group = Group.find(params[:group][:id])
 
-    if(group.instructor == current_instructor)
+    if(!student)
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Student does not exit",
+                        data: {} }
+      
+    elsif(group.instructor == current_instructor)
 
       group.students << student
       render status: 200,
