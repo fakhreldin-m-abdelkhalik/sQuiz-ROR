@@ -1,22 +1,33 @@
 module Api
 	class QuizzesController < ApplicationController
 		#skip_before_filter :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
-		#before_action :authenticate_instructor!, only: [:create,:destroy,:show,:index]
+		before_action :authenticate_instructor!, only: [:create,:publish,:destroy,:add_question,:edit_question]
 		respond_to :json
 		#This method returns to the client list of all quizzes the student or the instructor has.
 		def index
 			if (current_instructor)
 				quizzes = current_instructor.quizzes
-			else
+				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
+			elsif (current_student)
 				quizzes = current_student.quizzes
+				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
+			else
+				render json: { success:false, data:{},info:{"You have to login first"} }, status: 422###
 			end	
-			render json: { data:{:quizzes => quizzes} }, status: 200
 		end
 		#This method is used to get quiz by taking the quiz id from the client.
 		def show
-			quiz = current_instructor.quizzes.find(params[:id])
-			render json: { data:{:quiz => quiz} }, status: 200
-			#view question_params
+			if (current_instructor)
+				quiz = current_instructor.quizzes.find(params[:id])
+				questions = quiz.questions
+				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
+			elsif (current_student)
+				quiz = current_student.quizzes.find(params[:id])
+				questions = quiz.questions
+				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200	
+			else
+				render json: { success:false, data:{},info:{"You have to login first"} }, status: 422###
+			end
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
 		#and it returns the JSON representation of the newly created object and its location.
@@ -31,8 +42,8 @@ module Api
 		end
 		#This method publishes a quiz by taking the group id and quiz id
 		def publish
-			quiz = Quiz.find(params[:id])
-			group = Group.find(params[:group_id])
+			quiz = current_instructor.quizzes.find(params[:id])
+			group = current_instructor.groups.find(params[:group_id])
 			quiz.publish_quiz(params[:group_id])
 			if (group.quizzes.include?(quiz))
 				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
@@ -42,7 +53,7 @@ module Api
 		end
 		#This method deletes the quiz and the corresponding questions
 		def destroy
-			if (Quiz.exists?(:id => params[:id]))
+			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = Quiz.find(params[:id])
 				quiz.questions.each do |question|
 					question.destroy
@@ -58,7 +69,7 @@ module Api
 		#and it returns the JSON representation of the newly created object.
 		def add_question
 			question = Question.new(question_params)
-			quiz = Quiz.find(params[:quiz_id])
+			quiz = current_instructor.quizzes.find(params[:quiz_id])
 			if question.save
 				quiz.questions << question
 				render json: { success: true, data:{:question => question}, info:{} }, status: 201
