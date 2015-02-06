@@ -4,8 +4,8 @@ class Api::GroupsController < ApplicationController
 
   def add
 
-    student = Student.find(params[:student][:id])
-    group = Group.find(params[:group][:id])
+    student = Student.find_by_id(params[:student][:id])
+    group = Group.find_by_id(params[:group][:id])
 
     if(!student)
       render status: :unprocessable_entity,
