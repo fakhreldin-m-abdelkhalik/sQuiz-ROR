@@ -4,8 +4,8 @@ class Api::GroupsController < ApplicationController
 
   def add
 
-    student = Student.find(student_params)
-    group = Group.find(group_params)
+    student = Student.find(params[:student][:id])
+    group = Group.find(params[:group][:id])
 
     if(group.instructor == current_instructor)
 
@@ -27,8 +27,8 @@ class Api::GroupsController < ApplicationController
 
   def remove
 
-    student = Student.find(student_params)
-    group = Group.find(group_params)
+    student = Student.find(params[:student][:id])
+    group = Group.find(params[:group][:id])
 
     if(group.instructor == current_instructor)
 
@@ -46,16 +46,6 @@ class Api::GroupsController < ApplicationController
 
     end                    
 
-  end
-
-  private
-
-  def student_params
-    params.require(:student).permit(:id)
-  end
-
-  def group_params
-    params.require(:group).permit(:id)
   end
 
 end
