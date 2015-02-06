@@ -1,4 +1,4 @@
-class Api::GroupsController < Devise::RegistrationsController
+class Api::GroupsController < ApplicationController
   
   respond_to :json
 
@@ -18,7 +18,7 @@ class Api::GroupsController < Devise::RegistrationsController
     else
       render status: :unprocessable_entity,
              json: { success: false,
-                        info: "Instructor is not authorized to students to this group",
+                        info: "Instructor is not authorized to add students to this group",
                         data: {} }
 
     end                    
