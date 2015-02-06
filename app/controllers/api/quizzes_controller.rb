@@ -12,8 +12,8 @@ module Api
 				quizzes = current_student.quizzes
 				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
 			else
-				render json: { success:false, data:{},info:{"You have to login first"} }, status: 422###
-			end	
+				render json: { success:false, data:{},info:{"You have to login first."} }, status: 401
+			end
 		end
 		#This method is used to get quiz by taking the quiz id from the client.
 		def show
@@ -26,7 +26,7 @@ module Api
 				questions = quiz.questions
 				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200	
 			else
-				render json: { success:false, data:{},info:{"You have to login first"} }, status: 422###
+				render json: { success:false, data:{},info:{"You have to login first."} }, status: 401
 			end
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
@@ -42,13 +42,17 @@ module Api
 		end
 		#This method publishes a quiz by taking the group id and quiz id
 		def publish
-			quiz = current_instructor.quizzes.find(params[:id])
-			group = current_instructor.groups.find(params[:group_id])
-			quiz.publish_quiz(params[:group_id])
-			if (group.quizzes.include?(quiz))
-				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+			quiz = Quiz.find(params[:id])
+			group = Group.find(params[:group_id])
+			if(quiz.instructor == current_instructor)
+				quiz.publish_quiz(params[:group_id])
+				if (group.quizzes.include?(quiz))
+					render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+				else
+					render json: { success: false, data:{}, :info => "Quiz is not published." }, status: 500
+				end
 			else
-				render json: { success: false, data:{}, :info => "quiz isn't published" }, status: 500
+				render json: { success: false, data: {}, info: "Quiz is not found" }, status: 422
 			end
 		end
 		#This method deletes the quiz and the corresponding questions
@@ -59,7 +63,7 @@ module Api
 					question.destroy
 				end
 				quiz.destroy
-				head 204
+				render json: { success: true, data:{}, :info => "Quiz is successfully deleted." }, status: 200
 			else
 				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
 			end		
@@ -69,23 +73,35 @@ module Api
 		#and it returns the JSON representation of the newly created object.
 		def add_question
 			question = Question.new(question_params)
-			quiz = current_instructor.quizzes.find(params[:quiz_id])
-			if question.save
-				quiz.questions << question
-				render json: { success: true, data:{:question => question}, info:{} }, status: 201
+			if (current_instructor.quizzes.exists?(:id => params[:quiz_id]))
+				quiz = Quiz.find(params[:quiz_id])
+				if question.save
+					quiz.questions << question
+					render json: { success: true, data:{:question => question}, info:{} }, status: 201
+				else
+					render json: { success: false, data:{}, :info => question.errors }, status: 422
+				end
 			else
-				render json: { success: false, data:{}, :info => question.errors }, status: 422
-			end
+				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 422
+			end	
 		end
 		#This methods edits a question in quiz by taking the desired new question attributes from JSON objec
 		#and changes the current question atrributes.
 		def edit_question
-			question = Question.find(params[:question_id])
-			if (question.update(question_params))
-				render json: { success: true, data: { :question => question }, info:{} }, status: 200
+			quizzes = current_instructor.quizzes
+			quizzes.each do |quiz|
+				found = quiz.questions.exists?(:id => params[:question_id])
+			end
+			if (found)
+				question = Question.find(params[:question_id])
+				if (question.update(question_params))
+					render json: { success: true, data: { :question => question }, info:{} }, status: 200
+				else
+					render json: { success: false, data: {}, info: question.errors}, status: 422 
+				end	
 			else
-				render json: { success: false, data: {}, info: question.errors}, status: 422 #client submitted invalid data
-			end		
+				render json: { success: false, data:{}, info:"Question is not found"}, status: 422
+			end
 		end
 
 		private
