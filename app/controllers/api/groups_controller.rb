@@ -7,18 +7,18 @@ class Api::GroupsController < Devise::RegistrationsController
     student = Student.find(student_params)
     group = Group.find(group_params)
 
-    if(group.instructor == current_isntructor)
+    if(group.instructor == current_instructor)
 
       group.students << student
       render status: 200,
               json: { success: true,
                       info: "Added",
-                      data: { instructor: instructor,
+                      data: { instructor: current_instructor,
                               student: student , group: group} }
     else
       render status: :unprocessable_entity,
              json: { success: false,
-                        info: "Instructor is noy authorized to add students from this group",
+                        info: "Instructor is not authorized to students to this group",
                         data: {} }
 
     end                    
@@ -30,18 +30,18 @@ class Api::GroupsController < Devise::RegistrationsController
     student = Student.find(student_params)
     group = Group.find(group_params)
 
-    if(group.instructor == current_isntructor)
+    if(group.instructor == current_instructor)
 
       group.students.delete(student)
       render status: 200,
               json: { success: true,
                       info: "Removed",
-                      data: { instructor: current_isntructor,
+                      data: { instructor: current_instructor,
                               student: student , group: group} }
     else
       render status: :unprocessable_entity,
              json: { success: false,
-                        info: "Instructor is noy authorized to remove students from this group",
+                        info: "Instructor is not authorized to remove students to this group",
                         data: {} }
 
     end                    
@@ -57,5 +57,5 @@ class Api::GroupsController < Devise::RegistrationsController
   def group_params
     params.require(:group).permit(:id)
   end
- 
+
 end
