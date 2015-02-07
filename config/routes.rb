@@ -4,7 +4,11 @@ Rails.application.routes.draw do
   devise_for :students
   
   namespace :api do
-    resources :quizzes, except: [:update,:edit]
+    resources :quizzes, except: [:update,:edit,:index,:show]
+    get '/student/quizzes', to: 'quizzes#student_index'
+    get '/instructor/quizzes', to: 'quizzes#instructor_index'
+    get '/student/quizzes/:id', to: 'quizzes#student_show'
+    get '/instructor/quizzes/:id', to: 'quizzes#instructor_show'
     post '/quizzes/publish/:id', to: 'quizzes#publish'
 
     post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'

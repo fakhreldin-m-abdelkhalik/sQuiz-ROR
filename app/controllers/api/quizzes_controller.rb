@@ -1,32 +1,36 @@
 module Api
 	class QuizzesController < ApplicationController
-		acts_as_token_authentication_handler_for Instructor
-		before_action :authenticate_instructor!, only: [:create,:publish,:destroy,:add_question,:edit_question]
+		acts_as_token_authentication_handler_for Instructor, except: [:student_index,:student_show]
+		acts_as_token_authentication_handler_for Student, only: [:student_index,:student_show]
 		respond_to :json
-		#This method returns to the client list of all quizzes the student or the instructor has.
-		def index
-			if (current_instructor)
-				quizzes = current_instructor.quizzes
-				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
-			elsif (current_student)
-				quizzes = current_student.quizzes
-				render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
+		#This method returns to the student list of her/his quizzes.
+		def student_index
+			quizzes = current_student.quizzes
+			render json: { success:true, data:{:quizzes => quizzes}, info:{} }, status: 200
+		end
+		#This method is used to get a specific quiz by taking the quiz id from the student.
+		def student_show
+			if (current_student.quizzes.exists?(:id => params[:id]))
+				quiz = current_student.quizzes.find(params[:id])
+				questions = quiz.questions
+				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
 			else
-				render json: { success:false, data:{},info:"You have to sign-in first."}, status: 401
+				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
 			end
 		end
-		#This method is used to get quiz by taking the quiz id from the client.
-		def show
-			if (current_instructor)
+		#This method returns to the instructor list of her/his quizzes.
+		def instructor_index
+			quizzes = current_instructor.quizzes
+			render json: { success:true, data:{:quizzes => quizzes},info:{} }, status: 200
+		end
+		#This method is used to get a specific quiz by taking the quiz id from the instructor.
+		def instructor_show
+			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
 				questions = quiz.questions
 				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
-			elsif (current_student)
-				quiz = current_student.quizzes.find(params[:id])
-				questions = quiz.questions
-				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200	
 			else
-				render json: { success:false, data:{},info:"You have to sign-in first." }, status: 401
+				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
 			end
 		end
 		#This method creates new quiz by taking the quiz attributes from JSON object 
@@ -90,9 +94,9 @@ module Api
 		def edit_question
 			quizzes = current_instructor.quizzes
 			quizzes.each do |quiz|
-				found = quiz.questions.exists?(:id => params[:question_id])
+			@found = quiz.questions.exists?(:id => params[:question_id])
 			end
-			if (found)
+			if (@found)
 				question = Question.find(params[:question_id])
 				if (question.update(question_params))
 					render json: { success: true, data: { :question => question }, info:{} }, status: 200
@@ -109,7 +113,7 @@ module Api
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
 		end
 		def question_params
-			params.require(:question).permit(:text, :mark, :right_answer,:choices => [])
+			params.require(:question).permit(:text, :mark, :right_answer, :choices => [])
 		end
 	end
 end
