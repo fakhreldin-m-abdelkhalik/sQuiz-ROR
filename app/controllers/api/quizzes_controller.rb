@@ -93,10 +93,13 @@ module Api
 		#and changes the current question atrributes.
 		def edit_question
 			quizzes = current_instructor.quizzes
+			@found = 0
 			quizzes.each do |quiz|
-			@found = quiz.questions.exists?(:id => params[:question_id])
+				if(quiz.questions.exists?(:id => params[:question_id]))
+					@found = @found + 1
+				end 
 			end
-			if (@found)
+			if (@found > 0)
 				question = Question.find(params[:question_id])
 				if (question.update(question_params))
 					render json: { success: true, data: { :question => question }, info:{} }, status: 200
