@@ -79,7 +79,7 @@ class Api::GroupsController < ApplicationController
    if(tempgroup == nil) 
     my_create_group_function
    else  
-    render status: 400,
+    render status: 422,
             json: { success: false,
                     info: "You Can't make another group with the same name ",
                    }
@@ -107,8 +107,8 @@ def destroy
     else
 
         render json: {error: "Couldn't find a group with that name created by you",
-                     status: 400
-                     } , status: 400
+                     status: 404
+                     } , status: 404
 
 
 
