@@ -66,4 +66,80 @@ class Api::GroupsController < ApplicationController
 
   end
 
+
+
+
+ def create
+
+
+   tempgroup = Group.where(name:params[:group][:name]).where(instructor: current_instructor).first
+  
+
+    
+   if(tempgroup == nil) 
+    my_create_group_function
+   else  
+    render status: 400,
+            json: { success: false,
+                    info: "You Can't make another group with the same name ",
+                   }
+    
+   end 
+     
+                 
+
+end
+
+
+
+
+def destroy
+
+    group = Group.where(:name => params[:group][:name]).where(:instructor => current_instructor).first
+    
+    if(group!=nil)
+        group.destroy 
+        render status: 200,
+               json: { success: true,
+                       info: "Group Destroyed"
+                      }
+
+    else
+
+        render json: {error: "Couldn't find a group with that name created by you",
+                     status: 400
+                     } , status: 400
+
+
+
+
+    end      
+end
+
+private
+
+def group_params
+    params.require(:group).permit(:name)
+end 
+
+def my_create_group_function
+
+            group = Group.create(group_params)
+            group.instructor = current_instructor
+            if group.save
+
+           render status: 200,
+                  json: { success: true,
+                    info: "Group Created",
+                    data: { :group => group }}
+            else
+
+            render status: :unprocessable_entity,
+                   json: { success: false,
+                     info: group.errors,
+                     data: {} }
+            end
+
+end  
+
 end

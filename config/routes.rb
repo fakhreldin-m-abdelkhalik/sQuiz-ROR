@@ -28,6 +28,8 @@ Rails.application.routes.draw do
     
     post 'groups/student/add' => 'groups#add'
     post 'groups/student/remove' => 'groups#remove'
+     post 'groups/create'=>'groups#create'
+    delete 'groups/delete'=>'groups#destroy'
   end
 
 end
