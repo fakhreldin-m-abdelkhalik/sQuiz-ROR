@@ -14,6 +14,10 @@ Rails.application.routes.draw do
     post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'
     patch '/quizzes/editquestion/:question_id', to: 'quizzes#edit_question'
 
+    get '/student/groups', to: 'groups#student_index'
+    get '/instructor/groups', to: 'groups#instructor_index'
+    get '/instructor/groups/:id', to: 'groups#instructor_show'
+
     devise_scope :student do
       post 'students/signup' => 'students_registrations#create', as: 'student_register'
       post 'students/signin' => 'students_create#create', as: 'student_login'
