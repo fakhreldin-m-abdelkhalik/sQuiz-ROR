@@ -46,17 +46,21 @@ module Api
 		end
 		#This method publishes a quiz by taking the group id and quiz id
 		def publish
-			quiz = Quiz.find(params[:id])
-			group = Group.find(params[:group_id])
-			if(quiz.instructor == current_instructor && group.instructor == current_instructor)
-				quiz.publish_quiz(params[:group_id])
-				if (group.quizzes.include?(quiz))
-					render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+			if(current_instructor.quizzes.exists?(:id => params[:id]))
+				if(current_instructor.groups.exists?(:id => params[:group_id]))
+					quiz = Quiz.find(params[:id])
+					group = Group.find(params[:group_id])
+					quiz.publish_quiz(params[:group_id])
+					if (group.quizzes.include?(quiz))
+						render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+					else
+						render json: { success: false, data:{}, info: "Quiz is not published." }, status: 422
+					end
 				else
-					render json: { success: false, data:{}, info: "Quiz is not published." }, status: 500
-				end
+					render json: { success: false, data: {}, info: "Group is not found" }, status: 404
+				end	
 			else
-				render json: { success: false, data: {}, info: "Quiz is not found" }, status: 422
+				render json: { success: false, data: {}, info: "Quiz is not found" }, status: 404
 			end
 		end
 		#This method deletes the quiz and the corresponding questions
