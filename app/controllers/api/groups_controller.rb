@@ -16,7 +16,7 @@ class Api::GroupsController < ApplicationController
   def instructor_show
       if (current_instructor.groups.exists?(:id => params[:id]))
         group = current_instructor.groups.find(params[:id])
-        studens = group.students
+        students = group.students
         render json: {success:true, data:{:group => group, :students => students, info:{}} }, status: 200
       else
         render json: { success: false, data:{}, info:"group is not found"}, status: 404
