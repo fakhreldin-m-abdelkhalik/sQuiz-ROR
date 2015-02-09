@@ -14,17 +14,22 @@ Rails.application.routes.draw do
     post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'
     patch '/quizzes/editquestion/:question_id', to: 'quizzes#edit_question'
 
-    devise_scope :student do
-      post 'students/signup' => 'students_registrations#create', as: 'student_register'
-      post 'students/signin' => 'students_create#create', as: 'student_login'
-      delete 'students/signout' => 'students_destroy#destroy', as: 'student_logout'
-    end
+    get '/student/groups', to: 'groups#student_index'
+    get '/instructor/groups', to: 'groups#instructor_index'
+    get '/instructor/groups/:id', to: 'groups#instructor_show'
 
     devise_scope :instructor do
-      post 'instructors/signup' => 'instructors_registrations#create', as: 'instructor_register'
-      post 'instructors/signin' => 'instructors_create#create', as: 'instructor_login'
-      delete 'instructors/signout' => 'instructors_destroy#destroy', as: 'instructor_logout'
+      post 'instructors/signup', to: 'registrations#instructor_create'
     end
+
+    devise_scope :student do
+      post 'students/signup', to: 'registrations#student_create'
+    end
+
+    post 'signin', to: 'sessions#instructor_create'
+
+    delete 'student/signout', to: 'signout#student_destroy'
+    delete 'instructor/signout', to: 'signout#instructor_destroy'
     
     post 'groups/student/add' => 'groups#add'
     post 'groups/student/remove' => 'groups#remove'
