@@ -5,39 +5,55 @@ class Api::RegistrationsController < Devise::RegistrationsController
   respond_to :json
 
   def instructor_create
-    instructor = Instructor.create(instructor_params)
 
-    if instructor.save
-      sign_in  instructor
-      render status: 200,
-              json: { success: true,
-                      info: "Registered",
-                      data: { :instructor => instructor,
-                                 :auth_token => current_instructor.authentication_token } }
+    if email_is_not_taken(params[:instructor][:email])
+      instructor = Instructor.create(instructor_params)
+
+      if instructor.save
+        sign_in  instructor
+        render status: 200,
+                json: { success: true,
+                        info: "Registered",
+                        instructor: instructor,
+                        :auth_token => current_instructor.authentication_token }
+      else
+        render status: :unprocessable_entity,
+               json: { success: false,
+                          info: instructor.errors,
+                          data: {} }
+      end
     else
       render status: :unprocessable_entity,
-             json: { success: false,
-                        info: instructor.errors,
-                        data: {} }
+               json: { success: false,
+                          info: "Email is already taken"}
     end
+
   end
 
   def student_create
-    student = Student.create(student_params)
 
-    if student.save
-      sign_in  student
-      render status: 200,
-              json: { success: true,
-                      info: "Registered",
-                      data: { :student => student,
-                                 :auth_token => current_student.authentication_token } }
+    if email_is_not_taken(params[:instructor][:email])
+      student = Student.create(student_params)
+
+      if student.save
+        sign_in  student
+        render status: 200,
+                json: { success: true,
+                        info: "Registered",
+                        student: student,
+                        :auth_token => current_student.authentication_token }
+      else
+        render status: :unprocessable_entity,
+               json: { success: false,
+                          info: student.errors,
+                          data: {} }
+      end
     else
       render status: :unprocessable_entity,
-             json: { success: false,
-                        info: student.errors,
-                        data: {} }
+               json: { success: false,
+                          info: "Email is already taken"}
     end
+
   end
 
   private
@@ -48,5 +64,13 @@ class Api::RegistrationsController < Devise::RegistrationsController
 
   def student_params
     params.require(:student).permit(:name,:email,:password,:password_confirmation)
+  end
+
+  def email_is_not_taken(email)
+    if (Instructor.find_for_database_authentication(email: email) || Student.find_for_database_authentication(email: email))
+      false
+    else
+      true
+    end
   end
 end
