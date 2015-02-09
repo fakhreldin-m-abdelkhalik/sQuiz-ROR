@@ -24,5 +24,5 @@ class Api::SignoutController < ApplicationController
 	           json: { success: true,
 	                      info: "Logged out",
 	                      data: {} }
-	ends
+	end
 end
