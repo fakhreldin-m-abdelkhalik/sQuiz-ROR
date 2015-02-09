@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150202113137) do
+ActiveRecord::Schema.define(version: 20150209162215) do
 
   create_table "graph_managers", force: true do |t|
     t.datetime "created_at"
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 20150202113137) do
     t.integer  "student_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "student_ans"
   end
 
   add_index "student_result_quizzes", ["quiz_id"], name: "index_student_result_quizzes_on_quiz_id"
