@@ -12,6 +12,13 @@ class Api::SessionsController < Devise::SessionsController
                       data: { auth_token: current_instructor.authentication_token } }
   end
 
+  def student_create
+    Student.authenticate!(email,password, recall: "#{controller_path}#failure")
+    render status: 200,
+           json: { success: true,
+                      info: "Logged in",
+                      data: { auth_token: current_instructor.authentication_token } }
+  end
 
   def failure
     render :status => 401,
