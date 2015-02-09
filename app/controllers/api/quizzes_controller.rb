@@ -115,6 +115,36 @@ module Api
 			end
 		end
 
+		def group_result
+
+			group =  Group.find_by_id(params[:group_id])
+			quiz = Quiz.find_by_id(params[:quiz_id])
+
+			if(!group)
+				render status: :unprocessable_entity,
+             	json: { success: false,
+                        info: "Group does not exit",
+                        data: {} }  
+			elsif(!quiz)
+				render status: :unprocessable_entity,
+             	json: { success: false,
+                        info: "Quiz does not exit",
+                        data: {} }  
+			else
+				list = quiz.student_result_quizzes
+				grades = Hash.new
+				
+				for list do |student_result_quiz|
+					if group.students.include?(student_result_quiz.student)
+						grades[student_result_quiz.student.name] = student_result_quiz.result
+					end
+				end
+
+				render status: 200,
+						json:{success: true , results: grades}
+			end
+		end
+
 		private
 		def quiz_params
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
