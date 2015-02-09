@@ -1,7 +1,7 @@
 module Api
 	class QuizzesController < ApplicationController
-		acts_as_token_authentication_handler_for Instructor, except: [:student_index,:student_show]
-		acts_as_token_authentication_handler_for Student, only: [:student_index,:student_show]
+		acts_as_token_authentication_handler_for Instructor, except: [:student_index,:student_show,:student_take_quiz]
+		acts_as_token_authentication_handler_for Student, only: [:student_index,:student_show , :student_take_quiz]
 		respond_to :json
 		#This method returns to the student list of her/his quizzes.
 		def student_index
@@ -114,6 +114,51 @@ module Api
 				render json: { success: false, data:{}, info:"Question is not found"}, status: 422
 			end
 		end
+
+
+		def student_take_quiz
+         
+         quiz = Quiz.find_by_id(params[:id])
+         quiz_groups = quiz.groups 
+         student_groups = current_student.groups
+         found = 0
+
+         quiz_groups.each do|quiz_group|
+            
+            
+
+                if(student_groups.include?(quiz_group))
+
+                found =1	
+
+              	end
+
+        
+        #end_of_loop
+        end
+         
+
+         if (found==0)
+
+         render status: 404,
+                json: { success: false,
+                         info: "Quiz not found or allowed to you",
+                         data: {} }
+
+         else
+          render status: 200,
+                 json: { success: true,
+                         info: "Quiz returned",
+                         data: { quiz: quiz} }
+
+         end 
+
+
+        
+
+		
+
+		end	
 
 		private
 		def quiz_params
