@@ -32,7 +32,7 @@ class Api::RegistrationsController < Devise::RegistrationsController
 
   def student_create
 
-    if email_is_not_taken(params[:instructor][:email])
+    if email_is_not_taken(params[:student][:email])
       student = Student.create(student_params)
 
       if student.save
