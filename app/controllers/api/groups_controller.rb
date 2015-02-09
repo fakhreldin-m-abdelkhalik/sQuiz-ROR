@@ -1,6 +1,27 @@
 class Api::GroupsController < ApplicationController
   
-  acts_as_token_authentication_handler_for Instructor
+  acts_as_token_authentication_handler_for Instructor, except: [:student_index]
+  acts_as_token_authentication_handler_for Student, only: [:student_index]
+
+  def instructor_index
+    groups = current_instructor.groups
+    render json: { success:true, data:{:groups => groups},info:{} }, status: 200
+  end
+
+  def student_index
+      groups = current_student.groups
+      render json: { success:true, data:{:groups => groups}, info:{} }, status: 200
+  end
+
+  def instructor_show
+      if (current_instructor.groups.exists?(:id => params[:id]))
+        group = current_instructor.groups.find(params[:id])
+        students = group.students
+        render json: {success:true, data:{:group => group, :students => students, info:{}} }, status: 200
+      else
+        render json: { success: false, data:{}, info:"group is not found"}, status: 404
+      end
+  end
 
   def add
 
