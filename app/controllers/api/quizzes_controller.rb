@@ -181,12 +181,9 @@ module Api
          		end
          		counter = counter +1 
         		end	
-        		current_student_result_quiz = StudentResultQuiz.new
-        		current_student_result_quiz.student = current_student
-        		current_student_result_quiz.quiz = my_quiz
+        		current_student_result_quiz = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:my_quiz.id).first
         		current_student_result_quiz.result = my_result 
         		current_student_result_quiz.student_ans =my_answers
-        		current_student_result_quiz.save
        			if(current_student_result_quiz.save)
       	 			render status: 200 , 
             			   json: { success: true,
