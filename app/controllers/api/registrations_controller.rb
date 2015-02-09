@@ -22,11 +22,31 @@ class Api::RegistrationsController < Devise::RegistrationsController
     end
   end
 
-  
+  def student_create
+    student = Student.create(student_params)
+
+    if student.save
+      sign_in  student
+      render status: 200,
+              json: { success: true,
+                      info: "Registered",
+                      data: { :student => student,
+                                 :auth_token => current_student.authentication_token } }
+    else
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: student.errors,
+                        data: {} }
+    end
+  end
 
   private
 
   def instructor_params
     params.require(:instructor).permit(:name,:email,:password,:password_confirmation)
+  end
+
+  def student_params
+    params.require(:student).permit(:name,:email,:password,:password_confirmation)
   end
 end
