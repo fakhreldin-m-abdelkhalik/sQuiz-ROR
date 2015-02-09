@@ -1,7 +1,7 @@
 module Api
 	class QuizzesController < ApplicationController
-		acts_as_token_authentication_handler_for Instructor, except: [:student_index,:student_show,:student_take_quiz]
-		acts_as_token_authentication_handler_for Student, only: [:student_index,:student_show , :student_take_quiz]
+		acts_as_token_authentication_handler_for Instructor, except: [:student_index,:student_show,:student_take_quiz,:mark_quiz]
+		acts_as_token_authentication_handler_for Student, only: [:student_index,:student_show , :student_take_quiz,:mark_quiz]
 		respond_to :json
 		#This method returns to the student list of her/his quizzes.
 		def student_index
@@ -124,8 +124,7 @@ module Api
          found = 0
 
          quiz_groups.each do|quiz_group|
-            
-            
+           
 
                 if(student_groups.include?(quiz_group))
 
@@ -142,7 +141,7 @@ module Api
 
          render status: 404,
                 json: { success: false,
-                         info: "Quiz not found or allowed to you",
+                         info: "Quiz not found or not allowed to you",
                          data: {} }
 
          else
@@ -157,8 +156,106 @@ module Api
         
 
 		
-
+        #end_of_action
 		end	
+
+        def mark_quiz
+        
+        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
+        my_answers = params[:answers_stuff][:answers]
+        my_student = current_student
+        
+
+if((my_quiz == nil) || (my_student==nil) || (my_answers==nil))
+
+              
+        	render status: 404 , 
+
+        	json: { success: false,
+                         info: "necessary parameters not found"
+                   }
+
+else   
+
+
+         my_quiz_questions = my_quiz.questions  
+         quiz_groups = my_quiz.groups 
+         student_groups = current_student.groups
+         found = 0
+
+         quiz_groups.each do|quiz_group|
+            
+            
+
+                if(student_groups.include?(quiz_group))
+
+                found =1	
+
+              	end
+
+        
+        #end_of_loop
+        end
+         
+
+if (found==0)
+
+         render status: 404,
+                json: { success: false,
+                         info: "Quiz not found or not allowed to you",
+                         }
+
+
+else                
+            
+
+
+
+
+        counter = 0 
+        my_result =0
+        
+        my_quiz_questions.each do |question|
+
+         if(my_answers[counter] == question.right_answer)
+          my_result = my_result + question.mark 
+         end
+         counter = counter +1 
+        end	
+
+
+        my_student_result_quiz = StudentResultQuiz.new
+        my_student_result_quiz.student = my_student
+        my_student_result_quiz.quiz = my_quiz
+        my_student_result_quiz.result = my_result 
+        my_student_result_quiz.save
+
+
+
+       if(my_student_result_quiz.save)
+      	 render status: 200 , 
+            	json: { success: true,
+                         info: "Saved in the database ",
+                         result: my_result
+                          }
+
+        else
+        
+          render status: 422 , 
+            	json: { success: false,
+                         info: "couldn't save in database ",
+                         result: my_result
+                          }
+
+           
+
+        end                  
+
+
+
+end        
+end
+end	
 
 		private
 		def quiz_params
@@ -167,5 +264,6 @@ module Api
 		def question_params
 			params.require(:question).permit(:text, :mark, :right_answer, :choices => [])
 		end
+	
 	end
 end
