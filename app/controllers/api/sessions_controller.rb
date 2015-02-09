@@ -12,7 +12,7 @@ class Api::SessionsController < ApplicationController
         render status: 200,
            json: { success: true,
                       info: "Logged in",
-                      data: { auth_token: current_instructor.authentication_token } }
+                      auth_token: current_instructor.authentication_token }
     else
 
       student = Student.find_for_database_authentication(:email => params[:email])
@@ -21,7 +21,7 @@ class Api::SessionsController < ApplicationController
         render status: 200,
            json: { success: true,
                       info: "Logged in",
-                      data: { auth_token: current_student.authentication_token } }
+                      auth_token: current_student.authentication_token }
       else
         render :status => 401,
            :json => { :success => false,
