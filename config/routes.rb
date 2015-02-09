@@ -18,8 +18,13 @@ Rails.application.routes.draw do
     get '/instructor/groups', to: 'groups#instructor_index'
     get '/instructor/groups/:id', to: 'groups#instructor_show'
 
-    post 'students/signup', to: 'registrations#student_create'
-    post 'instructors/signup', to: 'registrations#instructor_create'
+    devise_scope :instructor do
+      post 'instructors/signup', to: 'registrations#instructor_create'
+    end
+
+    devise_scope :student do
+      post 'students/signup', to: 'registrations#student_create'
+    end
 
     post 'signin', to: 'sessions#instructor_create'
 
