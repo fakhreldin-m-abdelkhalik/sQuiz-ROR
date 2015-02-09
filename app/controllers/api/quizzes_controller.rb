@@ -163,10 +163,10 @@ module Api
         
         my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
         my_answers = params[:answers_stuff][:answers]
-        my_student = current_student
+        
         
 
-if((my_quiz == nil) || (my_student==nil) || (my_answers==nil))
+if((my_quiz == nil) || (current_student==nil) || (my_answers==nil))
 
               
         	render status: 404 , 
@@ -224,15 +224,15 @@ else
         end	
 
 
-        my_student_result_quiz = StudentResultQuiz.new
-        my_student_result_quiz.student = my_student
-        my_student_result_quiz.quiz = my_quiz
-        my_student_result_quiz.result = my_result 
-        my_student_result_quiz.save
+        current_student_result_quiz = StudentResultQuiz.new
+        current_student_result_quiz.student = current_student
+        current_student_result_quiz.quiz = my_quiz
+        current_student_result_quiz.result = my_result 
+        current_student_result_quiz.save
 
 
 
-       if(my_student_result_quiz.save)
+       if(current_student_result_quiz.save)
       	 render status: 200 , 
             	json: { success: true,
                          info: "Saved in the database ",
