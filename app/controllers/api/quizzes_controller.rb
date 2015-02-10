@@ -12,8 +12,15 @@ module Api
 		def student_show
 			if (current_student.quizzes.exists?(:id => params[:id]))
 				quiz = current_student.quizzes.find(params[:id])
-				questions = quiz.questions
-				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
+				if( quiz.expiry_date < DateTime.current )
+					student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
+					answers = student_quiz_obj.student_ans
+					student_result = student_quiz_obj.result
+					questions = quiz.questions
+					render json: {success:true, data:{:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
+				else
+					render json: {success:false, data:{}, info:"Quiz hasn't expired yet."} , status: 200
+				end
 			else
 				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
 			end
@@ -48,13 +55,17 @@ module Api
 		def publish
 			if(current_instructor.quizzes.exists?(:id => params[:id]))
 				if(current_instructor.groups.exists?(:id => params[:group_id]))
-					quiz = Quiz.find(params[:id])
-					group = Group.find(params[:group_id])
-					quiz.publish_quiz(params[:group_id])
-					if (group.quizzes.include?(quiz))
-						render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+					if((params[:expiry_date]).to_datetime > DateTime.current) 
+						quiz = Quiz.find(params[:id])
+						group = Group.find(params[:group_id])
+						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+							quiz.publish_quiz(params[:group_id])
+							render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+						else
+							render json: { success: false, data:{}, info: quiz.errors }, status: 422
+						end
 					else
-						render json: { success: false, data:{}, info: "Quiz is not published." }, status: 422
+						render json: { info: "Expiry Date must be in the future" }, status: 422
 					end
 				else
 					render json: { success: false, data: {}, info: "Group is not found" }, status: 404
