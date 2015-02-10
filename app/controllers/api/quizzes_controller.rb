@@ -132,11 +132,15 @@ module Api
                         data: {} }  
 			else
 				list = quiz.student_result_quizzes
-				grades = Hash.new
+				return_result = {}
+				grades = {}
 				
-				for list do |student_result_quiz|
+				list.each do |student_result_quiz|
 					if group.students.include?(student_result_quiz.student)
-						grades[student_result_quiz.student.name] = student_result_quiz.result
+						id = student_result_quiz.student.id
+						return_result[:name] = student_result_quiz.student.name
+						return_result[:result] = student_result_quiz.result
+						grades[id] = return_result
 					end
 				end
 
@@ -233,7 +237,6 @@ module Api
 			end        
 		end
 	end	
->>>>>>> master
 
 		private
 		def quiz_params
