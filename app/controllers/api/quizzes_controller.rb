@@ -13,11 +13,11 @@ module Api
 			if (current_student.quizzes.exists?(:id => params[:id]))
 				quiz = current_student.quizzes.find(params[:id])
 				if( quiz.expiry_date < DateTime.current )
-					#student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
-					#answers = student_quiz_obj.student_ans
-					#student_result = student_quiz_obj.result
+					student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
+					answers = student_quiz_obj.student_ans
+					student_result = student_quiz_obj.result
 					questions = quiz.questions
-					render json: {success:true, data:{:quiz => quiz}},status:200#, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
+					render json: {success:true, data:{:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
 				else
 					render json: {success:false, data:{}, info:"Quiz hasn't expired yet."} , status: 200
 				end

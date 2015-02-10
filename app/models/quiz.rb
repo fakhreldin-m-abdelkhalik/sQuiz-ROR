@@ -10,8 +10,6 @@ class Quiz < ActiveRecord::Base
 	validates :name ,presence: true
 	validates :subject ,presence: true
 	validates :duration ,presence: true
-	#validates_datetime :expiry_date, :after => lambda { DateTime.now.to_formatted_s(:short) } , 
-    #:after_message => 'Quiz expiry date must be after current time'
 
 	#This methods takes group_id as a parameter and assigns this quiz to the group and students in this group.
 	def publish_quiz ( group_id )
