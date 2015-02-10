@@ -21,7 +21,7 @@ module Api
 		#This method returns to the instructor list of her/his quizzes.
 		def instructor_index
 			quizzes = current_instructor.quizzes
-			render json: quizzes, status: 200
+			render json: quizzes.as_json(:only => [:id, :name, :created_at]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the instructor.
 		def instructor_show
