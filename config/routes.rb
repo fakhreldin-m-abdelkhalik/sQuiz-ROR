@@ -28,7 +28,7 @@ Rails.application.routes.draw do
 
     post 'signin', to: 'sessions#instructor_create'
 
-    get '/quiz/:quiz_id/group/:group_id', to: 'quizzes#group_result'
+    get '/quizzes/:quiz_id/group/:group_id', to: 'quizzes#group_result'
 
     delete 'student/signout', to: 'signout#student_destroy'
     delete 'instructor/signout', to: 'signout#instructor_destroy'
