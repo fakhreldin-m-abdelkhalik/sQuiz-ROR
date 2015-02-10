@@ -55,13 +55,17 @@ module Api
 		def publish
 			if(current_instructor.quizzes.exists?(:id => params[:id]))
 				if(current_instructor.groups.exists?(:id => params[:group_id]))
-					quiz = Quiz.find(params[:id])
-					group = Group.find(params[:group_id])
-					if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
-						quiz.publish_quiz(params[:group_id])
-						render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+					if((params[:expiry_date]).to_datetime > DateTime.current) 
+						quiz = Quiz.find(params[:id])
+						group = Group.find(params[:group_id])
+						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+							quiz.publish_quiz(params[:group_id])
+							render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+						else
+							render json: { success: false, data:{}, info: quiz.errors }, status: 422
+						end
 					else
-						render json: { success: false, data:{}, info: quiz.errors }, status: 422
+						render json: { info: "Quiz must be in the future time" }, status: 422
 					end
 				else
 					render json: { success: false, data: {}, info: "Group is not found" }, status: 404
