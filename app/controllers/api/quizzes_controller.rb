@@ -65,7 +65,7 @@ module Api
 							render json: { success: false, data:{}, info: quiz.errors }, status: 422
 						end
 					else
-						render json: { info: "Quiz must be in the future time" }, status: 422
+						render json: { info: "Expiry Date must be in the future" }, status: 422
 					end
 				else
 					render json: { success: false, data: {}, info: "Group is not found" }, status: 404
