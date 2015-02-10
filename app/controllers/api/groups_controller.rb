@@ -9,9 +9,9 @@ class Api::GroupsController < ApplicationController
   end
 
   def student_index
-      groups = current_student.groups
-      render json: { success:true, data:{:groups => groups}, info:{} }, status: 200
-  end
+    groups = current_student.groups
+    render json: { success:true, data:{:groups => groups}, info:{} }, status: 200
+  end 
 
   def instructor_show
       if (current_instructor.groups.exists?(:id => params[:id]))
