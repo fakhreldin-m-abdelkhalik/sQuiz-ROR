@@ -120,12 +120,12 @@ module Api
 			group =  Group.find_by_id(params[:group_id])
 			quiz = Quiz.find_by_id(params[:quiz_id])
 
-			if(!group)
+			if(!group || group.instructor != current_instructor)
 				render status: :unprocessable_entity,
              	json: { success: false,
                         info: "Group does not exit",
                         data: {} }  
-			elsif(!quiz)
+			elsif(!quiz || quiz.instructor != current_instructor)
 				render status: :unprocessable_entity,
              	json: { success: false,
                         info: "Quiz does not exit",
