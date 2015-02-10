@@ -24,6 +24,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    it "returns a specific quiz and its questions" do
 	    	sign_in @student
 	    	@quiz = create(:quiz)
+	    	@quiz.update(expiry_date: DateTime.now - 1.hour)
 	    	@question = create(:question)
 	    	@quiz.questions << @question
 	    	@student.quizzes << @quiz
@@ -109,4 +110,30 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	     	expect(quiz_response[:data][:quiz][:no_of_rearrangeQ]).to eql(5)	
 	    end
     end
+
+    describe "create method failing" do
+	    it "fails to create a new quiz for the current instructor due to validations" do
+	    	sign_in @instructor
+	    	post :create, quiz: { name:"", subject:"maths", duration: 10, no_of_MCQ: 5, no_of_rearrangeQ: 5 }
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(422)	
+	    end
+    end
+
+    describe "delete method succeeding" do
+	    it "deletes a quiz from the instructor quizzes" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@question = create(:question)
+	    	@quiz.questions << @question
+	    	@instructor.quizzes << @quiz
+	    	delete :destroy, id: @quiz.id
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(200)
+	     	expect(quiz_response[:success]).to eql(true)
+	     	expect(Quiz.find_by_id(@quiz.id)).to eql(nil)
+	     	expect(Question.find_by_id(@question.id)).to eql(nil)		
+	    end
+    end
+
 end
