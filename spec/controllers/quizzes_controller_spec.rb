@@ -131,9 +131,60 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(200)
 	     	expect(quiz_response[:success]).to eql(true)
+	     	expect(quiz_response[:info]).to eql("Quiz is successfully deleted.")
 	     	expect(Quiz.find_by_id(@quiz.id)).to eql(nil)
 	     	expect(Question.find_by_id(@question.id)).to eql(nil)		
 	    end
     end
 
+    describe "delete method succeeding" do
+	    it "deletes a quiz from the instructor quizzes" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@question = create(:question)
+	    	@quiz.questions << @question
+	    	@instructor.quizzes << @quiz
+	    	delete :destroy, id: 2
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(404)
+	     	expect(quiz_response[:success]).to eql(false)
+	     	expect(quiz_response[:info]).to eql("Quiz is not found.")
+	     	expect(Quiz.find_by_id(@quiz.id)).to eql(@quiz)
+	     	expect(Question.find_by_id(@question.id)).to eql(@question)		
+	    end
+    end
+
+    describe "publish method succeeding" do
+	    it "publishes a quiz from the instructor quizzes to a future date and time" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@group = create(:group)
+	    	@group.students << @student
+	    	@instructor.quizzes << @quiz
+	    	@instructor.groups << @group
+	    	post :publish, { id: @quiz.id, group_id: @group.id, expiry_date: (DateTime.now + 1.day).to_s}
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(202)
+	     	expect(quiz_response[:success]).to eql(true)
+	     	expect(@group.quizzes.find_by_id(@quiz.id)).to eql(@quiz)
+	     	expect(@student.quizzes.find_by_id(@quiz.id)).to eql(@quiz)		
+	    end
+    end
+
+    describe "publish method failing" do
+	    it "fails to publish a quiz from the instructor quizzes because the instructor specifies past time" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@group = create(:group)
+	    	@group.students << @student
+	    	@instructor.quizzes << @quiz
+	    	@instructor.groups << @group
+	    	post :publish, { id: @quiz.id, group_id: @group.id, expiry_date: (DateTime.now - 1.day).to_s}
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(422)
+	     	expect(quiz_response[:info]).to eql("Expiry Date must be in the future.")
+	     	expect(@group.quizzes.find_by_id(@quiz.id)).to eql(nil)
+	     	expect(@student.quizzes.find_by_id(@quiz.id)).to eql(nil)		
+	    end
+    end
 end
