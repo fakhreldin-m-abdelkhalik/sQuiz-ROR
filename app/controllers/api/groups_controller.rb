@@ -5,7 +5,7 @@ class Api::GroupsController < ApplicationController
 
   def instructor_index
     groups = current_instructor.groups
-    render json: groups.as_json(:only => [:name]), status: 200
+    render json: groups.as_json(:only => [:name, :id]), status: 200
   end
 
   def student_index
