@@ -137,8 +137,8 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    end
     end
 
-    describe "delete method succeeding" do
-	    it "deletes a quiz from the instructor quizzes" do
+    describe "delete method failing" do
+	    it "fails to delete a quiz from the instructor quizzes" do
 	    	sign_in @instructor
 	    	@quiz = create(:quiz)
 	    	@question = create(:question)
@@ -185,6 +185,39 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	     	expect(quiz_response[:info]).to eql("Expiry Date must be in the future.")
 	     	expect(@group.quizzes.find_by_id(@quiz.id)).to eql(nil)
 	     	expect(@student.quizzes.find_by_id(@quiz.id)).to eql(nil)		
+	    end
+    end
+
+    describe "add question method succeeding" do
+	    it "adds question to a specific quiz" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@group = create(:group)
+	    	@group.students << @student
+	    	@instructor.quizzes << @quiz
+	    	@instructor.groups << @group
+	    	post :add_question, { quiz_id: @quiz.id, question: {text: "Example Question?", mark: 2, right_answer: "a", choices: ["a","b","c","d"]}}
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(201)
+	     	expect(quiz_response[:data][:question][:text]).to eql("Example Question?")		
+	    	expect(quiz_response[:data][:question][:mark]).to eql(2.0)
+	    	expect(quiz_response[:data][:question][:choices]).to eql(["a","b","c","d"])
+	    	expect(quiz_response[:data][:question][:right_answer]).to eql("a")
+	    end
+    end
+
+    describe "add question method failing" do
+	    it "fails to add question to a specific quiz due to validations failure" do
+	    	sign_in @instructor
+	    	@quiz = create(:quiz)
+	    	@group = create(:group)
+	    	@group.students << @student
+	    	@instructor.quizzes << @quiz
+	    	@instructor.groups << @group
+	    	post :add_question, { quiz_id: @quiz.id, question: {text: "", mark: 2, right_answer: "a", choices: ["a","b","c","d"]}}
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(422)
+	    	expect(quiz_response[:info][:text]).to eq(["can't be blank"])
 	    end
     end
 end
