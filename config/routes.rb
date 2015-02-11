@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     get '/instructor/quizzes/:id', to: 'quizzes#instructor_show'
     post '/quizzes/publish/:id', to: 'quizzes#publish'
 
+    get 'token', to: 'groups#token'
+    
     post '/quizzes/addquestion/:quiz_id', to: 'quizzes#add_question'
     patch '/quizzes/editquestion/:question_id', to: 'quizzes#edit_question'
 

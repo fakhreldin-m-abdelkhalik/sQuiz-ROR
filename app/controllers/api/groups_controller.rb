@@ -1,7 +1,11 @@
 class Api::GroupsController < ApplicationController
   
-  acts_as_token_authentication_handler_for Instructor, except: [:student_index]
+  acts_as_token_authentication_handler_for Instructor, except: [:student_index,:token]
   acts_as_token_authentication_handler_for Student, only: [:student_index]
+
+  def token
+    render json: { success:true}, status: 200
+  end
 
   def instructor_index
     groups = current_instructor.groups
