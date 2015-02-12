@@ -110,6 +110,18 @@ class Api::GroupsController < ApplicationController
     render json: {info:"deleted"}, status: 200     
   end
 
+  def show_quizzes
+    group = find_by_id(params[:id])
+      if(group == nil)
+        render status: 400, json: { error: "Group not found" }
+      elsif(group.instructor == current_instructor) 
+        quizzes = group.quizzes
+        render json: quizzes.as_json(:only => [:name, :id]), status: 200
+       else
+        render status: 400, json: { error: "You are not the instructor of this group" }
+      end  
+  end 
+
   private
 
   def group_params

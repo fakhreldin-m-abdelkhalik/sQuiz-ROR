@@ -40,6 +40,7 @@ Rails.application.routes.draw do
 
     get '/instructor/quizzes/:quiz_id/:student_id', to: 'quizzes#instructor_student_mark'
     post 'groups/delete'=>'groups#destroy'
+    get  'groups/:id/quizzes'=>,to:'groups#show_quizzes'
   end
 
 end
