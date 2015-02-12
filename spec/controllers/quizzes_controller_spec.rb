@@ -15,8 +15,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    	get :student_index
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(200)
-	    	expect(quiz_response[:success]).to eql(true)
-	     	expect((quiz_response[:data][:quizzes]).first[:name]).to eql(@quiz.name)
+	     	expect((quiz_response).first[:name]).to eql(@quiz.name)
 	    end
     end
 
