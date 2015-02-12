@@ -96,7 +96,7 @@ class Api::GroupsController < ApplicationController
    if(tempgroup == nil) 
     my_create_group_function
    else  
-    render status: 400, json: { info: "You Can't make another group with the same name " }
+    render status: 400, json: { error: "You Can't make another group with the same name " }
     end 
   end
 
@@ -141,7 +141,7 @@ def my_create_group_function
             else
 
             render status: :unprocessable_entity,
-                   json: { info: group.errors }
+                   json: { error: group.errors }
             end
 
 end  
