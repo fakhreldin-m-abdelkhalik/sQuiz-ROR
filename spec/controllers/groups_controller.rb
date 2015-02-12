@@ -174,8 +174,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			@group.students << @student
 			get :instructor_show ,id: 4
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("group is not found")
+			expect(group_response[:error]).to eql("group is not found")
 		end
 	end		
 
