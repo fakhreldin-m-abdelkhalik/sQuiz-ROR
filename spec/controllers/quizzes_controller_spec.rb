@@ -248,13 +248,90 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           expect(response.status).to eq(200)
           expect(quiz_response[:info]).to eq("Saved in the database ")
           expect(quiz_response[:your_answer]).to eql(["a","b","c"])
-          
+
 
 
 
 
     	end
+    end	
+
+    describe "mark_quiz method failing_1 Answers not properly sent"do
+    	it "fails to proceed because answers sent from Android are not fine" do
+ 		  sign_in @student 
+          assign_create_quiz_group
+
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id}
+
+          quiz_response = json(response.body)
+          expect(response.status).to eq(404)
+          expect(quiz_response[:info]).to eq("answers not properly sent")
+          
+
+    	end
     end		
+
+
+
+
+    describe "mark_quiz method failing_2 Quiz not found"do
+    	it "fails to proceed because quiz isn't found " do
+ 		  sign_in @student 
+          assign_create_quiz_group
+
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+
+          post :mark_quiz , answers_stuff:{quiz_id:3 ,answers:["a","b","c"]}
+
+          quiz_response = json(response.body)
+          expect(response.status).to eq(404)
+          expect(quiz_response[:info]).to eq("Quiz Not Found")
+          
+
+    	end
+    end	
+
+
+    describe "mark_quiz method failing_3 Quiz not allowed to student"do
+    	it "fails to proceed because quiz not allowed to student " do
+ 		  sign_in @student 
+          assign_create_quiz_group
+
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          #@group.students << @student
+          @quiz.publish_quiz(@group.id)
+
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+
+          quiz_response = json(response.body)
+          expect(response.status).to eq(404)
+          expect(quiz_response[:info]).to eq("Quiz not allowed to you")
+          
+
+    	end
+    end	 
+
 
 
 end
