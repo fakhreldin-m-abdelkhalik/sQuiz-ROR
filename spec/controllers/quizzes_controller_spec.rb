@@ -332,6 +332,26 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     	end
     end	 
 
+    describe "group_result method succeeding"do
+    	it "returns quiz results for a group for current instructor" do
+          sign_in @instructor
+          assign_create_quiz_group
+          
+          @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1 
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+          post :group_result , quiz_id: @quiz.id , group_id: @group.id
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          expect(quiz_response[:success]).to eq(true)
+    	end
+    end	
 
 
 end
