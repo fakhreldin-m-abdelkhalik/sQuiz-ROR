@@ -47,8 +47,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			@instructor.groups << @group
 			post :add ,student: {id: 5}, group: {id: @group.id}
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Student does not exist")
+			expect(group_response[:error]).to eql("Student does not exist")
 		end
 	end		
 
@@ -59,8 +58,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			@instructor.groups << @group
 			post :add ,student: {id: @student.id}, group: {id: 5}
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Group does not exist")
+			expect(group_response[:error]).to eql("Group does not exist")
 		end
 	end		
 
@@ -73,8 +71,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			post :add ,student: {id: @student.id}, group: {id: @group.id}
 			post :add ,student: {id: @student.id}, group: {id: @group.id}
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Student already exists in this group")
+			expect(group_response[:error]).to eql("Student already exists in this group")
 		end
 	end	
 
