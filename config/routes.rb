@@ -38,6 +38,8 @@ Rails.application.routes.draw do
     post 'groups/create'=>'groups#create'
     post 'student/mark_quiz', to: 'quizzes#mark_quiz'
     delete 'groups/delete'=>'groups#destroy'
+
+    get '/instructor/quizzes/:quiz_id/:student_id', to: 'quizzes#instructor_student_mark'
   end
 
 end
