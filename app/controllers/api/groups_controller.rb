@@ -44,10 +44,7 @@ class Api::GroupsController < ApplicationController
 
       group.students << student
       render status: 200,
-              json: { success: true,
-                      info: "Added",
-                      data: { instructor: current_instructor,
-                              student: student , group: group} }#name we id we email
+              json: student.as_json(:only => [:name, :id, :email])
     else
       render status: :unprocessable_entity,
              json: { error: "Instructor is not authorized to add students to this group" }
