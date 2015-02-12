@@ -127,12 +127,12 @@ end
 private
 
 def group_params
-    params.require(:group).permit(:name)
+    params.permit(:name)
 end 
 
 def my_create_group_function
 
-            group = Group.create(group_params)
+            group = Group.create(params)
             group.instructor = current_instructor
             if group.save
 
