@@ -31,13 +31,13 @@ class Api::GroupsController < ApplicationController
     if(!student)
       render status: :unprocessable_entity,
              json: { success: false,
-                        info: "Student does not exit",
+                        info: "Student does not exist",
                         data: {} }
 
     elsif(!group)
       render status: :unprocessable_entity,
              json: { success: false,
-                        info: "Group does not exit",
+                        info: "Group does not exist",
                         data: {} }  
 
     elsif (group.students.include?(student))
@@ -66,10 +66,28 @@ class Api::GroupsController < ApplicationController
 
   def remove
 
-    student = Student.find(params[:student][:id])
-    group = Group.find(params[:group][:id])
+    student = Student.find_by_id(params[:student][:id])
+    group = Group.find_by_id(params[:group][:id])
 
-    if(group.instructor == current_instructor)
+    if(!student)
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Student does not exist",
+                        data: {} }
+
+    elsif(!group)
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Group does not exist",
+                        data: {} }  
+    elsif (!group.students.include?(student))
+      render status: :unprocessable_entity,
+             json: { success: false,
+                        info: "Student does not exist in this group",
+                        data: {} }  
+
+
+    elsif(group.instructor == current_instructor)
 
       group.students.delete(student)
       render status: 200,
