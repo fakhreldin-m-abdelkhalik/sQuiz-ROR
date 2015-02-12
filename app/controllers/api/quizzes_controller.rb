@@ -65,7 +65,7 @@ module Api
 							render json: { success: false, data:{}, info: quiz.errors }, status: 422
 						end
 					else
-						render json: { info: "Expiry Date must be in the future" }, status: 422
+						render json: { info: "Expiry Date must be in the future." }, status: 422
 					end
 				else
 					render json: { success: false, data: {}, info: "Group is not found" }, status: 404
@@ -84,7 +84,7 @@ module Api
 				quiz.destroy
 				render json: { success: true, data:{}, :info => "Quiz is successfully deleted." }, status: 200
 			else
-				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 404
+				render json: { success: false, data:{}, info:"Quiz is not found."}, status: 404
 			end		
 		end
 		#This method creates new question by taking the question attributes attributes from JSON object
@@ -101,7 +101,7 @@ module Api
 					render json: { success: false, data:{}, :info => question.errors }, status: 422
 				end
 			else
-				render json: { success: false, data:{}, info:"Quiz is not found"}, status: 422
+				render json: { success: false, data:{}, info:"Quiz is not found."}, status: 422
 			end	
 		end
 		#This methods edits a question in quiz by taking the desired new question attributes from JSON objec
