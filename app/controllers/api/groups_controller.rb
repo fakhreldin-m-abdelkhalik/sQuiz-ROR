@@ -132,7 +132,7 @@ end
 
 def my_create_group_function
 
-            group = Group.create(params)
+            group = Group.create( params )
             group.instructor = current_instructor
             if group.save
 
