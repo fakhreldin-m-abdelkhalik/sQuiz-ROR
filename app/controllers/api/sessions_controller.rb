@@ -14,7 +14,6 @@ class Api::SessionsController < ApplicationController
                       info: "Logged in",
                       auth_token: current_instructor.authentication_token }
     else
-
       student = Student.find_for_database_authentication(:email => params[:email])
       if student && student.valid_password?(params[:password])
         sign_in(student)
@@ -23,10 +22,8 @@ class Api::SessionsController < ApplicationController
                       info: "Logged in",
                       auth_token: current_student.authentication_token }
       else
-        render :status => 401,
-           :json => { :success => false,
-                      :info => "Login Failed",
-                      :data => {} }
+        render status: 401,
+           json: { error: "Login Failed" }
       end
 
     end
