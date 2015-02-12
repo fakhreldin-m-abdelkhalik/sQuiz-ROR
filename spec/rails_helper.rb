@@ -20,6 +20,9 @@ require 'capybara/rails'
 # require only the support files necessary.
 #
 # Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+def json(body)      
+  JSON.parse(body, symbolize_names: true)     
+end 
 
 # Checks for pending migrations before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
@@ -27,7 +30,9 @@ ActiveRecord::Migration.maintain_test_schema!
 
 RSpec.configure do |config|
   config.include Capybara::DSL
+  config.include Warden::Test::Helpers
   config.include FactoryGirl::Syntax::Methods
+  config.include Devise::TestHelpers, type: :controller
   config.infer_spec_type_from_file_location!
 
   # Cleaning the database before each suite

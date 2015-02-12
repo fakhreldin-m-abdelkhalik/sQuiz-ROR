@@ -12,8 +12,15 @@ module Api
 		def student_show
 			if (current_student.quizzes.exists?(:id => params[:id]))
 				quiz = current_student.quizzes.find(params[:id])
-				questions = quiz.questions
-				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
+				if( quiz.expiry_date < DateTime.current )
+					student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
+					answers = student_quiz_obj.student_ans
+					student_result = student_quiz_obj.result
+					questions = quiz.questions
+					render json: {success:true, data:{:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
+				else
+					render json: { error:"Quiz hasn't expired yet."} , status: 200
+				end
 			else
 				render json: { error:"Quiz is not found" }, status: 404
 			end
@@ -48,13 +55,17 @@ module Api
 		def publish
 			if(current_instructor.quizzes.exists?(:id => params[:id]))
 				if(current_instructor.groups.exists?(:id => params[:group_id]))
-					quiz = Quiz.find(params[:id])
-					group = Group.find(params[:group_id])
-					quiz.publish_quiz(params[:group_id])
-					if (group.quizzes.include?(quiz))
-						render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+					if((params[:expiry_date]).to_datetime > DateTime.current) 
+						quiz = Quiz.find(params[:id])
+						group = Group.find(params[:group_id])
+						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+							quiz.publish_quiz(params[:group_id])
+							render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+						else
+							render json: { error: quiz.errors }, status: 422
+						end
 					else
-						render json: { error: "Quiz is not published." }, status: 422
+						render json: { error: "Expiry Date must be in the future." }, status: 422
 					end
 				else
 					render json: { error: "Group is not found" }, status: 404
@@ -115,37 +126,46 @@ module Api
 			end
 		end
 
+		def group_result
+			group =  Group.find_by_id(params[:group_id])
+			quiz = Quiz.find_by_id(params[:quiz_id])
 
-		def student_take_quiz
-         
-         quiz = Quiz.find_by_id(params[:id])
-         quiz_groups = quiz.groups 
-         student_groups = current_student.groups
-         found = 0
-         quiz_groups.each do|quiz_group|
-             if(student_groups.include?(quiz_group))
-                found =1	
-             end
-         end
-         if (found==0)
-        	 render status: 404,
-              	    json: { error: "Quiz not found or not allowed to you" }
+			if(!group || group.instructor != current_instructor)
+				render status: :unprocessable_entity,
+             	json: { error: "Group does not exit" }  
+			elsif(!quiz || quiz.instructor != current_instructor)
+				render status: :unprocessable_entity,
+             	json: { error: "Quiz does not exit" }  
+			else
+				list = quiz.student_result_quizzes
+				return_result = {}
+				grades = {}
+				
+				list.each do |student_result_quiz|
+					if group.students.include?(student_result_quiz.student)
+						id = student_result_quiz.student.id
+						return_result[:name] = student_result_quiz.student.name
+						return_result[:result] = student_result_quiz.result
+						grades[id] = return_result
+					end
+				end
 
-         else
-         	 render status: 200,
-               	    json: { success: true,
-                         info: "Quiz returned",
-                         data: { quiz: quiz} }
-         end 
-		end	
+				render status: 200,
+						json:{success: true , results: grades}
+			end
+		end
 
-	    def mark_quiz
-	        
+    	def mark_quiz
 	        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
 	        my_answers = params[:answers_stuff][:answers]
-	        if((my_quiz == nil) || (current_student==nil) || (my_answers==nil))
+
+	        if(my_quiz == nil)
 	        	render status: 404 , 
-	        		   json: { error: "necessary parameters not found" }
+	        		   json: { error: "Quiz Not Found" }
+
+	        elsif(my_answers==nil)  
+	        	render status: 404 , 
+	        		   json: { error: "answers not properly sent" }
 			else   
 	        	my_quiz_questions = my_quiz.questions  
 	        	quiz_groups = my_quiz.groups 
@@ -158,15 +178,17 @@ module Api
 	       		end
 				if (found==0)
 	         		render status: 404,
-	                	   json: { error: "Quiz not allowed to you" }
+	                	   json: { 
+	                       			error: "Quiz not allowed to you",
+	                              }
 				else                
 	        		counter = 0 
 	        		my_result =0
 	        		my_quiz_questions.each do |question|
-	         		if(my_answers[counter] == question.right_answer)
-	          			my_result = my_result + question.mark 
-	         		end
-	         		counter = counter +1 
+		         		if(my_answers[counter] == question.right_answer)
+		          			my_result = my_result + question.mark 
+		         		end
+		         		counter = counter +1 
 	        		end	
 	        		current_student_result_quiz = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:my_quiz.id).first
 	        		current_student_result_quiz.result = my_result 
@@ -175,15 +197,12 @@ module Api
 	      	 			render status: 200 , 
 	            			   json: { success: true,
 	                         			  info: "Saved in the database ",
-	                         	   your_answer: current_student_result_quiz.student_ans 
-	                          			}
+	                         	   your_answer: current_student_result_quiz.student_ans
+	                         	   	 }
 	        		else
 	        		  render status: 422 , 
-	            			   { error: "couldn't save in database " }
+	            			   json: { error: "couldn't save in database " }
 	        		end                  
-
-
-
 				end        
 			end
 		end	
@@ -195,6 +214,5 @@ module Api
 		def question_params
 			params.require(:question).permit(:text, :mark, :right_answer, :choices => [])
 		end
-	
 	end
 end
