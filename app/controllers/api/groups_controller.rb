@@ -47,7 +47,7 @@ class Api::GroupsController < ApplicationController
               json: { success: true,
                       info: "Added",
                       data: { instructor: current_instructor,
-                              student: student , group: group} }
+                              student: student , group: group} }#name we id we email
     else
       render status: :unprocessable_entity,
              json: { error: "Instructor is not authorized to add students to this group" }
@@ -57,24 +57,28 @@ class Api::GroupsController < ApplicationController
   end
 
   def remove
+    ins_groups = current_instructor.groups
+    if( ins_groups.exists?(:id => params[:group_id]) )
+      group = ins_groups.find(params[:group_id])
+      students = group.students
+      ids = []
+      i = 0
 
-    student = Student.find(params[:student][:id])
-    group = Group.find(params[:group][:id])
+      while ( params["_json"][i] != nil ) do
+        ids << (params["_json"][i]["id"]).to_i 
+        i = i + 1
+      end
 
-    if(group.instructor == current_instructor)
+      ids.each do |id|
+        if (students.exists?(:id => id))
+          students.delete(Student.find(id))
+        end
+      end
 
-      group.students.delete(student)
-      render status: 200,
-              json: { success: true,
-                      info: "Removed",
-                      data: { instructor: current_instructor,
-                              student: student , group: group} }
+      render json: {info:"deleted"}, status: 200  
     else
-      render status: :unprocessable_entity,
-             json: { error: "Instructor is not authorized to remove students to this group" }
-
-    end                    
-
+      render json: {error:"Group is not found"}, status: 200
+    end                   
   end
 
 
@@ -106,18 +110,7 @@ class Api::GroupsController < ApplicationController
       end
     end
 
-    render json: {info:"deleted"}, status: 200
-      # group = Group.where(:name => params[:group][:name]).where(:instructor => current_instructor).first
-      
-      # if(group!=nil)
-      #     group.destroy 
-      #     render status: 200,
-      #            json: { success: true,
-      #                    info: "Group Destroyed"
-      #                   }
-      # else
-      #     render json: { error: "Couldn't find a group with that name created by you" } , status: 400
-      # end      
+    render json: {info:"deleted"}, status: 200     
   end
 
   private
