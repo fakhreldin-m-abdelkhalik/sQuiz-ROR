@@ -195,9 +195,8 @@ module Api
 	        		current_student_result_quiz.student_ans =my_answers
 	       			if(current_student_result_quiz.save)
 	      	 			render status: 200 , 
-	            			   json: { success: true,
-	                         			  info: "Saved in the database ",
-	                         	   your_answer: current_student_result_quiz.student_ans
+	            			   json: {
+	                         	   		your_answer: current_student_result_quiz.student_ans
 	                         	   	 }
 	        		else
 	        		  render status: 422 , 
