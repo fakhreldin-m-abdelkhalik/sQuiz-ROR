@@ -215,6 +215,18 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    	expect(quiz_response[:data][:question][:right_answer]).to eql("a")
 	    end
     end
+
+    describe "edit question method failing" do
+	    it "fails to change the attribute of the question due to validations" do
+	    	sign_in @instructor
+	    	assign_create_quiz_group
+	    	assign_create_question
+	    	patch :edit_question, { question_id: @question.id, question: {choices: []}}
+	    	quiz_response = json(response.body)
+	    	expect(response.status).to eq(422)
+	    	expect(quiz_response[:info][:choices]).to eq(["can't be blank"])
+	    end
+    end
 end
 
 def assign_create_quiz_group
