@@ -165,11 +165,19 @@ module Api
         
         my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
         my_answers = params[:answers_stuff][:answers]
-        if((my_quiz == nil) || (current_student==nil) || (my_answers==nil))
+       
+        if(my_quiz == nil)
         	render status: 404 , 
         		   json: { success: false,
-                         info: "necessary parameters not found"
+                         info: "Quiz Not Found"
                     	 }
+
+        elsif(my_answers==nil)  
+        	render status: 404 , 
+        		   json: { success: false,
+                         info: "answers not properly sent"
+                    	 }          	 
+
 		else   
         	my_quiz_questions = my_quiz.questions  
         	quiz_groups = my_quiz.groups 
