@@ -161,47 +161,23 @@ module Api
 		end
 		
 
-		def student_take_quiz
-         
-         quiz = Quiz.find_by_id(params[:id])
-         quiz_groups = quiz.groups 
-         student_groups = current_student.groups
-         found = 0
-         quiz_groups.each do|quiz_group|
-             if(student_groups.include?(quiz_group))
-                found =1	
-             end
-         end
-         if (found==0)
-        	 render status: 404,
-              	    json: { success: false,
-                         info: "Quiz not found or not allowed to you",
-                         data: {} }
-
-         else
-         	 render status: 200,
-               	    json: { success: true,
-                         info: "Quiz returned",
-                         data: { quiz: quiz} }
-
-         end 
-
-
-        
-
-		
-        
-		end	
-
     def mark_quiz
         
         my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
         my_answers = params[:answers_stuff][:answers]
-        if((my_quiz == nil) || (current_student==nil) || (my_answers==nil))
+       
+        if(my_quiz == nil)
         	render status: 404 , 
         		   json: { success: false,
-                         info: "necessary parameters not found"
+                         info: "Quiz Not Found"
                     	 }
+
+        elsif(my_answers==nil)  
+        	render status: 404 , 
+        		   json: { success: false,
+                         info: "answers not properly sent"
+                    	 }          	 
+
 		else   
         	my_quiz_questions = my_quiz.questions  
         	quiz_groups = my_quiz.groups 
@@ -233,7 +209,8 @@ module Api
       	 			render status: 200 , 
             			   json: { success: true,
                          			  info: "Saved in the database ",
-                         	   your_answer: current_student_result_quiz.student_ans 
+                         	   your_answer: current_student_result_quiz.student_ans
+                         	   
                           			}
         		else
         		  render status: 422 , 
