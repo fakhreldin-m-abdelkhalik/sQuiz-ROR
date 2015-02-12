@@ -96,19 +96,19 @@ module Api
 		#and assigns this question to the current quiz using the sent quiz id.  
 		#and it returns the JSON representation of the newly created object.
 		def add_question
-			question = Question.new(question_params)
-			if (current_instructor.quizzes.exists?(:id => params[:quiz_id]))
-				quiz = Quiz.find(params[:quiz_id])
-				if question.save
+			if(current_instructor.quizzes.exists?(:id => params[:quiz_id]))
+				quiz = current_instructor.quizzes.find(params[:quiz_id])
+				no = quiz.no_of_MCQ + quiz.no_of_rearrangeQ	
+				no.times do |n|
+					question = Question.create((params["_json"][n]).permit([:text, :mark, :right_answer, :choices => [],]))
 					quiz.questions << question
-					render json: { success: true, data:{:question => question}, info:{} }, status: 201
-				else
-					render json: { error: question.errors }, status: 422
 				end
+				render json: { info: "created"}, status: 201
 			else
 				render json: { error:"Quiz is not found" }, status: 422
-			end	
+			end
 		end
+
 		#This methods edits a question in quiz by taking the desired new question attributes from JSON objec
 		#and changes the current question atrributes.
 		def edit_question
@@ -249,9 +249,6 @@ module Api
 		private
 		def quiz_params
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
-		end
-		def question_params
-			params.require(:question).permit(:text, :mark, :right_answer, :choices => [])
 		end
 	end
 end
