@@ -155,6 +155,41 @@ module Api
 			end
 		end
 
+
+		def instructor_student_mark
+        	my_quiz = Quiz.find_by_id(params[:quiz_id])
+        	my_student = Student.find_by_id(params[:student_id])
+        	if(my_quiz == nil)
+        		render  status: 404 , 
+            		    json: { error: "Quiz Not Found" } 
+
+            elsif(my_student==nil) 
+            	render  status: 404 , 
+            		    json: { error: "Student not found" }              
+        	elsif(current_instructor.quizzes.exists?(:id => my_quiz.id))
+        		if(my_student.quizzes.exists?(:id => my_quiz.id))
+        			puts my_quiz.expiry_date
+        			if(my_quiz.expiry_date < DateTime.current )
+						student_quiz_obj = StudentResultQuiz.where(student_id:my_student.id).where(quiz_id:my_quiz.id).first	
+						answers = student_quiz_obj.student_ans
+						student_result = student_quiz_obj.result
+						questions = my_quiz.questions
+						render json: {success:true, data:{:student_answers => answers, :result => student_result},info:"done !" }, status: 200
+					else
+						render json: { error: "Quiz hasn't expired yet" }  , status: 200
+					end
+        		else
+        			render  status: 404 , 
+            		   json: { error: "Student not allowed this quiz" } 
+        		end	
+        	else	
+        		render  status: 404 , 
+            		    json: { error: "You don't own this Quiz as an instructor" } 
+        	end	
+		end	
+
+
+
     	def mark_quiz
 	        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
 	        my_answers = params[:answers_stuff][:answers]

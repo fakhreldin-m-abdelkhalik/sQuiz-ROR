@@ -329,6 +329,140 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     end	 
 
 
+    describe "instructor_student_mark succeeding"do
+    	it "returns the mark of a certian student " do
+ 		  sign_in @student 
+          assign_create_quiz_group
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          @quiz.expiry_date = "2001-02-20 11:25:09 +0200".to_datetime
+          @quiz.save 
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          ###############################################  
+      	  sign_in @instructor
+          get :instructor_student_mark ,quiz_id:@quiz.id ,student_id:@student.id
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          expect(quiz_response[:data][:result]).to eq(5.5)
+    	end
+    end	
+
+    describe "instructor_student_mark failing_1"do
+    	it "fails due to quiz not found" do
+ 		  sign_in @student 
+          assign_create_quiz_group
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          @quiz.expiry_date = "2001-02-20 11:25:09 +0200".to_datetime
+          @quiz.save 
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          ###############################################  
+      	  sign_in @instructor
+          get :instructor_student_mark ,quiz_id: 2 ,student_id:@student.id
+          quiz_response = json(response.body)
+          expect(response.status).to eq(404)
+          expect(quiz_response[:error]).to eq("Quiz Not Found")
+    	end
+    end	
+
+    describe "instructor_student_mark failing_2"do
+    	it "fails due to quiz hasn't expired yet" do
+ 		  sign_in @student 
+          assign_create_quiz_group
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          @quiz.expiry_date = "2020-02-20 11:25:09 +0200".to_datetime
+          @quiz.save 
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          ###############################################  
+      	  sign_in @instructor
+          get :instructor_student_mark ,quiz_id:@quiz.id ,student_id:@student.id
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          expect(quiz_response[:error]).to eq("Quiz hasn't expired yet")
+    	end
+    end
+
+    describe "instructor_student_mark failing_3"do
+    	it "fails::Student not allowed this quiz " do
+ 		  sign_in @student 
+          assign_create_quiz_group
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          @quiz.expiry_date = "2002-02-20 11:25:09 +0200".to_datetime
+          @quiz.save 
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          ###############################################  
+      	  sign_in @instructor
+      	  student2=create(:student2)
+      	  student3=create(:student3)
+          get :instructor_student_mark ,quiz_id:@quiz.id ,student_id: 2
+          quiz_response = json(response.body)
+          expect(quiz_response[:error]).to eq("Student not allowed this quiz")
+    	end
+    end
+
+    describe "instructor_student_mark failing_4"do
+    	it "fails::Instructor didn't create this Quiz " do
+ 		  sign_in @student 
+          assign_create_quiz_group
+ 		  @question_1 = create(:question)
+          @question_2 = create(:question)
+          @question_3 = create(:question2)
+          @quiz.questions << @question_1
+          @quiz.questions << @question_2
+          @quiz.questions << @question_3
+          @group.students << @student
+          @quiz.publish_quiz(@group.id)
+          @quiz.expiry_date = "2002-02-20 11:25:09 +0200".to_datetime
+          @quiz.save 
+          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+          quiz_response = json(response.body)
+          expect(response.status).to eq(200)
+          ###############################################  
+          @instructor_2 = create(:instructor1)
+      	  sign_in @instructor_2
+      	  student2=create(:student2)
+      	  student3=create(:student3)
+          get :instructor_student_mark ,quiz_id:@quiz.id ,student_id:@student.id
+          quiz_response = json(response.body)
+          expect(quiz_response[:error]).to eq("You don't own this Quiz as an instructor")
+    	end
+    end
+
+
 
 end
 
