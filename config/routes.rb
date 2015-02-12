@@ -37,7 +37,7 @@ Rails.application.routes.draw do
     post 'groups/student/remove' => 'groups#remove'
     post 'groups/create'=>'groups#create'
     post 'student/mark_quiz', to: 'quizzes#mark_quiz'
-    delete 'groups/delete'=>'groups#destroy'
+    post 'groups/delete'=>'groups#destroy'
   end
 
 end
