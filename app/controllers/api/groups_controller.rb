@@ -111,7 +111,7 @@ class Api::GroupsController < ApplicationController
   end
 
   def show_quizzes
-    group = find_by_id(params[:id])
+    group = Group.find_by_id(params[:id])
       if(group == nil)
         render status: 400, json: { error: "Group not found" }
       elsif(group.instructor == current_instructor) 
