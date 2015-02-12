@@ -161,38 +161,6 @@ module Api
 		end
 		
 
-		def student_take_quiz
-         
-         quiz = Quiz.find_by_id(params[:id])
-         quiz_groups = quiz.groups 
-         student_groups = current_student.groups
-         found = 0
-         quiz_groups.each do|quiz_group|
-             if(student_groups.include?(quiz_group))
-                found =1	
-             end
-         end
-         if (found==0)
-        	 render status: 404,
-              	    json: { success: false,
-                         info: "Quiz not found or not allowed to you",
-                         data: {} }
-
-         else
-         	 render status: 200,
-               	    json: { success: true,
-                         info: "Quiz returned",
-                         data: { quiz: quiz} }
-
-         end 
-
-
-        
-
-		
-        
-		end	
-
     def mark_quiz
         
         my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
