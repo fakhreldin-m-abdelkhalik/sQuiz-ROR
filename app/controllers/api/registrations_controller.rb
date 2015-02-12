@@ -18,14 +18,11 @@ class Api::RegistrationsController < Devise::RegistrationsController
                         :auth_token => current_instructor.authentication_token }
       else
         render status: :unprocessable_entity,
-               json: { success: false,
-                          info: instructor.errors,
-                          data: {} }
+               json: { error: instructor.errors }
       end
     else
       render status: :unprocessable_entity,
-               json: { success: false,
-                          info: "Email is already taken"}
+               json: { error: "Email is already taken" }
     end
 
   end
@@ -44,14 +41,11 @@ class Api::RegistrationsController < Devise::RegistrationsController
                         :auth_token => current_student.authentication_token }
       else
         render status: :unprocessable_entity,
-               json: { success: false,
-                          info: student.errors,
-                          data: {} }
+               json: { error: student.errors }
       end
     else
       render status: :unprocessable_entity,
-               json: { success: false,
-                          info: "Email is already taken"}
+               json: { error: "Email is already taken" }
     end
 
   end

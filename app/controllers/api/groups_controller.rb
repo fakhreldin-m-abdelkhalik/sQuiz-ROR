@@ -117,22 +117,18 @@ def destroy
         render json: {error: "Couldn't find a group with that name created by you",
                      status: 400
                      } , status: 400
-
-
-
-
     end      
 end
 
 private
 
 def group_params
-    params.permit(:name)
+    params.require(:group).permit(:name)
 end 
 
 def my_create_group_function
 
-            group = Group.create( params )
+            group = Group.create( group_params )
             group.instructor = current_instructor
             if group.save
 
