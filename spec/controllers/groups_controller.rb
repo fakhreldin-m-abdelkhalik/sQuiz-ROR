@@ -13,9 +13,8 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			sign_in @instructor
 			post :create , group: {name: "g1"}
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(true)
-	     	expect(group_response[:data][:group][:name]).to eql("g1")	
-	     	expect(group_response[:data][:group][:instructor_id]).to eql(@instructor.id)     		
+	     	expect(group_response[:name]).to eql("g1")	
+	     	expect(group_response[:id]).to eql(1)     		
 		end
 	end
 
