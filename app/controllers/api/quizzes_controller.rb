@@ -76,16 +76,21 @@ module Api
 		end
 		#This method deletes the quiz and the corresponding questions
 		def destroy
-			if (current_instructor.quizzes.exists?(:id => params[:id]))
-				quiz = Quiz.find(params[:id])
-				quiz.questions.each do |question|
-					question.destroy
-				end
-				quiz.destroy
-				render json: { success: true, data:{}, :info => "Quiz is successfully deleted." }, status: 200
-			else
-				render json: { error:"Quiz is not found" }, status: 404
-			end		
+			ids = []
+			i = 0
+
+			while ( params["_json"][i] != nil ) do
+				ids << (params["_json"][i]["id"]).to_i 
+				i = i + 1
+			end
+
+			ids.each do |id|
+				if (current_instructor.quizzes.exists?(:id => id))
+				Quiz.find(id).destroy
+			end
+			end
+
+			render json: {info:"deleted"}, status: 200		
 		end
 		#This method creates new question by taking the question attributes attributes from JSON object
 		#and assigns this question to the current quiz using the sent quiz id.  
