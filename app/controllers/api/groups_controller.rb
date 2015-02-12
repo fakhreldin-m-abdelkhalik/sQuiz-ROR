@@ -44,10 +44,7 @@ class Api::GroupsController < ApplicationController
 
       group.students << student
       render status: 200,
-              json: { success: true,
-                      info: "Added",
-                      data: { instructor: current_instructor,
-                              student: student , group: group} }
+              json: student.as_json(:only => [:name, :id, :email])
     else
       render status: :unprocessable_entity,
              json: { error: "Instructor is not authorized to add students to this group" }
@@ -57,42 +54,28 @@ class Api::GroupsController < ApplicationController
   end
 
   def remove
+    ins_groups = current_instructor.groups
+    if( ins_groups.exists?(:id => params[:group_id]) )
+      group = ins_groups.find(params[:group_id])
+      students = group.students
+      ids = []
+      i = 0
 
-    student = Student.find_by_id(params[:student][:id])
-    group = Group.find_by_id(params[:group][:id])
+      while ( params["_json"][i] != nil ) do
+        ids << (params["_json"][i]["id"]).to_i 
+        i = i + 1
+      end
 
-    if(!student)
-      render status: :unprocessable_entity,
-             json: { success: false,
-                        info: "Student does not exist",
-                        data: {} }
+      ids.each do |id|
+        if (students.exists?(:id => id))
+          students.delete(Student.find(id))
+        end
+      end
 
-    elsif(!group)
-      render status: :unprocessable_entity,
-             json: { success: false,
-                        info: "Group does not exist",
-                        data: {} }  
-    elsif (!group.students.include?(student))
-      render status: :unprocessable_entity,
-             json: { success: false,
-                        info: "Student does not exist in this group",
-                        data: {} }  
-
-
-    elsif(group.instructor == current_instructor)
-
-      group.students.delete(student)
-      render status: 200,
-              json: { success: true,
-                      info: "Removed",
-                      data: { instructor: current_instructor,
-                              student: student , group: group} }
+      render json: {info:"deleted"}, status: 200  
     else
-      render status: :unprocessable_entity,
-             json: { error: "Instructor is not authorized to remove students to this group" }
-
-    end                    
-
+      render json: {error:"Group is not found"}, status: 200
+    end                   
   end
 
 
@@ -124,18 +107,7 @@ class Api::GroupsController < ApplicationController
       end
     end
 
-    render json: {info:"deleted"}, status: 200
-      # group = Group.where(:name => params[:group][:name]).where(:instructor => current_instructor).first
-      
-      # if(group!=nil)
-      #     group.destroy 
-      #     render status: 200,
-      #            json: { success: true,
-      #                    info: "Group Destroyed"
-      #                   }
-      # else
-      #     render json: { error: "Couldn't find a group with that name created by you" } , status: 400
-      # end      
+    render json: {info:"deleted"}, status: 200     
   end
 
   private
