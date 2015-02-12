@@ -17,7 +17,7 @@ class Api::GroupsController < ApplicationController
       if (current_instructor.groups.exists?(:id => params[:id]))
         group = current_instructor.groups.find(params[:id])
         students = group.students
-        render json: {success:true, data:{:group => group, :students => students, info:{}} }, status: 200
+        render json: students.as_json(:only => [:name, :id, :email]), status: 200
       else
         render json: { error:"group is not found"}, status: 404
       end
@@ -94,15 +94,15 @@ class Api::GroupsController < ApplicationController
   def destroy
     ids = []
     i = 0
-    
-    while ( params[i]["id"] != nil ) do
-      ids << params[i]["id"] 
+
+    while ( params["_json"][i] != nil ) do
+      ids << (params["_json"][i]["id"]).to_i 
       i = i + 1
     end
 
     ids.each do |id|
       if (current_instructor.groups.exists?(:id => id))
-        group.find(id).destroy
+        Group.find(id).destroy
       end
     end
 
