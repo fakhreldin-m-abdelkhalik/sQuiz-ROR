@@ -6,7 +6,7 @@ module Api
 		#This method returns to the student list of her/his quizzes.
 		def student_index
 			quizzes = current_student.quizzes
-			render json: { success:true, data:{:quizzes => quizzes}, info:{} }, status: 200
+			render json: quizzes.as_json(:only => [:name, :id, :created_at]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show

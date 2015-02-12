@@ -80,51 +80,61 @@ class Api::GroupsController < ApplicationController
 
 
 
- def create
-   tempgroup = Group.where(name:params[:group][:name]).where(instructor: current_instructor).first
-   
-   if(tempgroup == nil) 
-    my_create_group_function
-   else  
-    render status: 400, json: { error: "You Can't make another group with the same name " }
+  def create
+    tempgroup = Group.where(name:params[:group][:name]).where(instructor: current_instructor).first
+
+    if(tempgroup == nil) 
+      my_create_group_function
+    else  
+      render status: 400, json: { error: "You Can't make another group with the same name " }
     end 
   end
 
 
-def destroy
-    group = Group.where(:name => params[:group][:name]).where(:instructor => current_instructor).first
+  def destroy
+    ids = []
+    i = 0
     
-    if(group!=nil)
-        group.destroy 
-        render status: 200,
-               json: { success: true,
-                       info: "Group Destroyed"
-                      }
+    while ( params[i]["id"] != nil ) do
+      ids << params[i]["id"] 
+      i = i + 1
+    end
+
+    ids.each do |id|
+      if (current_instructor.groups.exists?(:id => id))
+        group.find(id).destroy
+      end
+    end
+
+    render json: {info:"deleted"}, status: 200
+      # group = Group.where(:name => params[:group][:name]).where(:instructor => current_instructor).first
+      
+      # if(group!=nil)
+      #     group.destroy 
+      #     render status: 200,
+      #            json: { success: true,
+      #                    info: "Group Destroyed"
+      #                   }
+      # else
+      #     render json: { error: "Couldn't find a group with that name created by you" } , status: 400
+      # end      
+  end
+
+  private
+
+  def group_params
+      params.require(:group).permit(:name)
+  end 
+
+  def my_create_group_function
+    group = Group.new( group_params )
+    group.instructor = current_instructor
+    if group.save
+      render status: 200,
+      json: group.as_json(:only => [:id, :name])
     else
-        render json: { error: "Couldn't find a group with that name created by you" } , status: 400
-    end      
-end
-
-private
-
-def group_params
-    params.require(:group).permit(:name)
-end 
-
-def my_create_group_function
-
-            group = Group.create( group_params )
-            group.instructor = current_instructor
-            if group.save
-
-           render status: 200,
-                  json: group.as_json(:only => [:id, :name])
-            else
-
-            render status: :unprocessable_entity,
-                   json: { error: group.errors }
-            end
-
-end  
-
+      render status: :unprocessable_entity,
+      json: { error: group.errors }
+    end
+  end  
 end
