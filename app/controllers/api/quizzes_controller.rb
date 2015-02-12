@@ -87,7 +87,7 @@ module Api
 					quiz.questions << question
 					render json: { success: true, data:{:question => question}, info:{} }, status: 201
 				else
-					render json: { success: false, data:{}, :info => question.errors }, status: 422
+					render json: { error: question.errors }, status: 422
 				end
 			else
 				render json: { error:"Quiz is not found" }, status: 422
