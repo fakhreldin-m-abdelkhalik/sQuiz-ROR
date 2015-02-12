@@ -134,12 +134,12 @@ module Api
 			if(!group || group.instructor != current_instructor)
 				render status: :unprocessable_entity,
              	json: { success: false,
-                        info: "Group does not exit",
+                        info: "Group does not exist",
                         data: {} }  
 			elsif(!quiz || quiz.instructor != current_instructor)
 				render status: :unprocessable_entity,
              	json: { success: false,
-                        info: "Quiz does not exit",
+                        info: "Quiz does not exist",
                         data: {} }  
 			else
 				list = quiz.student_result_quizzes
