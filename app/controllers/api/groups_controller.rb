@@ -150,9 +150,7 @@ def my_create_group_function
             if group.save
 
            render status: 200,
-                  json: { success: true,
-                    info: "Group Created",
-                    data: { :group => group }}
+                  json: group.as_json(:only => [:id, :name])
             else
 
             render status: :unprocessable_entity,
