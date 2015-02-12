@@ -22,7 +22,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 		it "destroy a group for the current instructor" do
 			sign_in @instructor
 			post :create , group: {name: "g1"}
-			delete :destroy , _json: [{id: 1}]
+			post :destroy , _json: [{id: 1}]
 			group_response = json(response.body)
 			expect(group_response[:info]).to eql("deleted")
 		end
@@ -81,10 +81,9 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			@group = create(:group)
 			@instructor.groups << @group
 			@group.students << @student
-			post :remove ,student: {id: @student.id}, group: {id: @group.id}
+			post :remove ,_json: [{id: @student.id}], group_id: @group.id
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(true)
-			expect(group_response[:info]).to eql("Removed")
+			expect(group_response[:info]).to eql("deleted")
 		end
 	end	
 
