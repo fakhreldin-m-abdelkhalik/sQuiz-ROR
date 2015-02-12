@@ -87,40 +87,15 @@ RSpec.describe Api::GroupsController, :type => :controller do
 		end
 	end	
 
-	describe"remove method failing - Student does not exist in this group"do
-		it "removes student from a group in which it does not exist in by current instructor" do
-			sign_in @instructor
-			@group = create(:group)
-			@instructor.groups << @group
-			post :remove ,student: {id: @student.id}, group: {id: @group.id}
-			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Student does not exist in this group")	
-		end
-	end		
-
-	describe"remove method failing - Student does not exist"do
-		it "removes student from a group by current instructor" do
-			sign_in @instructor
-			@group = create(:group)
-			@instructor.groups << @group
-			post :remove ,student: {id: 10}, group: {id: @group.id}
-			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Student does not exist")	
-		end
-	end		
-
 	describe"remove method failing - Group does not exist"do
 		it "removes student from a group by current instructor" do
 			sign_in @instructor
 			@group = create(:group)
 			@instructor.groups << @group
 			@group.students << @student
-			post :remove ,student: {id: @student.id}, group: {id: 10}
+			post :remove ,_json: [{id: @student.id}], group_id: 10
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(false)
-			expect(group_response[:info]).to eql("Group does not exist")	
+			expect(group_response[:error]).to eql("Group is not found")	
 		end
 	end		
 
