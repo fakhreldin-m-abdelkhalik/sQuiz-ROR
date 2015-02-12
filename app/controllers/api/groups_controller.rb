@@ -91,27 +91,14 @@ class Api::GroupsController < ApplicationController
 
 
  def create
-
-
    tempgroup = Group.where(name:params[:group][:name]).where(instructor: current_instructor).first
-  
-
-    
+   
    if(tempgroup == nil) 
     my_create_group_function
    else  
-    render status: 400,
-            json: { success: false,
-                    info: "You Can't make another group with the same name ",
-                   }
-    
-   end 
-     
-                 
-
-end
-
-
+    render status: 400, json: { info: "You Can't make another group with the same name " }
+    end 
+  end
 
 
 def destroy
@@ -154,9 +141,7 @@ def my_create_group_function
             else
 
             render status: :unprocessable_entity,
-                   json: { success: false,
-                     info: group.errors,
-                     data: {} }
+                   json: { info: group.errors }
             end
 
 end  
