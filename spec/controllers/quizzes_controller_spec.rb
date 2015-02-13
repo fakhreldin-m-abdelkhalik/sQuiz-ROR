@@ -69,9 +69,10 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    	get :instructor_show, id: @quiz.id
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(200)
-	    	expect(quiz_response[:success]).to eql(true)
-	     	expect(quiz_response[:data][:quiz][:name]).to eql(@quiz.name)
-	     	expect((quiz_response[:data][:questions]).first[:text]).to eql(@question.text)	
+	     	expect(quiz_response.as_json[0]["text"]).to eql(@question.text)
+	     	expect(quiz_response.as_json[0]["mark"]).to eql(@question.mark)
+        expect(quiz_response.as_json[0]["choices"]).to eql(@question.choices)
+        expect(quiz_response.as_json[0]["right_answer"]).to eql(@question.right_answer)	
 	    end
 
       it "fails to return a specific quiz and its questions because quiz is not found" do
