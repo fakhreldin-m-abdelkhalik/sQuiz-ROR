@@ -17,9 +17,10 @@ module Api
 					answers = student_quiz_obj.student_ans
 					student_result = student_quiz_obj.result
 					questions = quiz.questions
-					render json: {success:true, data:{:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
+					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
 				else
-					render json: { error:"Quiz hasn't expired yet."} , status: 200
+					questions = quiz.questions.reverse
+					render json: questions, status: 200
 				end
 			else
 				render json: { error:"Quiz is not found" }, status: 404
