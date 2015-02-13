@@ -46,7 +46,7 @@ module Api
 			quiz = Quiz.new(quiz_params)
 			if quiz.save
 				current_instructor.quizzes << quiz
-				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 201
+				render json: { id: quiz.id }, status: 201
 			else
 				render json: { error: quiz.errors }, status: 422
 			end
@@ -100,7 +100,7 @@ module Api
 				quiz = current_instructor.quizzes.find(params[:quiz_id])
 				no = quiz.no_of_MCQ + quiz.no_of_rearrangeQ	
 				no.times do |n|
-					question = Question.create((params["_json"][n]).permit([:text, :mark, :right_answer, :choices => [],]))
+					question = Question.create((params["_json"][n]).permit([:text, :mark, :right_answer, :choices => []]))
 					quiz.questions << question
 				end
 				render json: { info: "created"}, status: 201
@@ -137,10 +137,14 @@ module Api
 
 			if(!group || group.instructor != current_instructor)
 				render status: :unprocessable_entity,
-             	json: { error: "Group does not exit" }  
+             	json: { success: false,
+                        info: "Group does not exist",
+                        data: {} }  
 			elsif(!quiz || quiz.instructor != current_instructor)
 				render status: :unprocessable_entity,
-             	json: { error: "Quiz does not exit" }  
+             	json: { success: false,
+                        info: "Quiz does not exist",
+                        data: {} }  
 			else
 				list = quiz.student_result_quizzes
 				return_result = {}

@@ -30,11 +30,11 @@ class Api::GroupsController < ApplicationController
 
     if(!student)
       render status: :unprocessable_entity,
-             json: { error: "Student does not exit" }
+             json: {error: "Student does not exist"}
 
     elsif(!group)
       render status: :unprocessable_entity,
-             json: { error: "Group does not exit"}  
+             json: {error: "Group does not exist"}  
 
     elsif (group.students.include?(student))
       render status: :unprocessable_entity,
