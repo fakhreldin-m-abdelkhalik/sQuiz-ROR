@@ -10,7 +10,7 @@ class Api::GroupsController < ApplicationController
 
   def student_index
     groups = current_student.groups
-    render json: { success:true, data:{:groups => groups}, info:{} }, status: 200
+    render json: groups.as_json(:only => [:name, :id]), status: 200
   end 
 
   def instructor_show
