@@ -92,12 +92,6 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     	post :create, quiz: { name:"quiz1", subject:"maths", duration: 10, no_of_MCQ: 5, no_of_rearrangeQ: 5 }
     	quiz_response = json(response.body)
     	expect(response.status).to eq(201)
-     	expect(quiz_response[:success]).to eql(true)
-     	expect(quiz_response[:data][:quiz][:name]).to eql("quiz1")	
-     	expect(quiz_response[:data][:quiz][:subject]).to eql("maths")	
-     	expect(quiz_response[:data][:quiz][:duration]).to eql(10)	
-     	expect(quiz_response[:data][:quiz][:no_of_MCQ]).to eql(5)
-     	expect(quiz_response[:data][:quiz][:no_of_rearrangeQ]).to eql(5)	
     end
 
     it "fails to create a new quiz for the current instructor due to validations" do
@@ -108,36 +102,24 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     end
   end
 
-  # describe "delete method succeeding" do
-   #  it "deletes a quiz from the instructor quizzes" do
-   #  	sign_in @instructor
-   #  	@quiz = create(:quiz)
-   #  	assign_create_question
-   #  	@instructor.quizzes << @quiz
-   #  	delete :destroy, id: @quiz.id
-   #  	quiz_response = json(response.body)
-   #  	expect(response.status).to eq(200)
-   #   	expect(quiz_response[:success]).to eql(true)
-   #   	expect(quiz_response[:error]).to eql("Quiz is successfully deleted.")
-   #   	expect(Quiz.find_by_id(@quiz.id)).to eql(nil)
-   #   	expect(Question.find_by_id(@question.id)).to eql(nil)		
-   #  end
-  # end
-
-  # describe "delete quiz method failing" do
-   #  it "fails to delete a quiz from the instructor quizzes" do
-   #  	sign_in @instructor
-   #  	@quiz = create(:quiz)
-   #  	assign_create_question
-   #  	@instructor.quizzes << @quiz
-   #  	delete :destroy, id: 2
-   #  	quiz_response = json(response.body)
-   #  	expect(response.status).to eq(404)
-   #   	expect(quiz_response[:error]).to eql("Quiz is not found.")
-   #   	expect(Quiz.find_by_id(@quiz.id)).to eql(@quiz)
-   #   	expect(Question.find_by_id(@question.id)).to eql(@question)		
-   #  end
-  # end
+  describe "delete method succeeding" do
+    it "deletes a quiz from the instructor quizzes" do
+    	sign_in @instructor
+    	@quiz = create(:quiz)
+      @quiz2 = create(:quiz2)
+    	assign_create_question
+      assign_create_question_2
+    	@instructor.quizzes << @quiz
+      @instructor.quizzes << @quiz2
+    	post :destroy, _json: [{id: @quiz.id},{id: @quiz2.id}]
+    	quiz_response = json(response.body)
+    	expect(response.status).to eq(200)
+     	expect(quiz_response[:info]).to eql("deleted")
+     	expect(Quiz.find_by_id(@quiz.id)).to eql(nil)
+      expect(Question.find_by_id(@question2.id)).to eql(nil)
+     	expect(Question.find_by_id(@question.id)).to eql(nil)		
+    end
+  end
 
   describe "publish method" do
     it "publishes a quiz from the instructor quizzes to a future date and time" do
@@ -490,4 +472,9 @@ end
 def assign_create_question
 	@question = create(:question)
 	@quiz.questions << @question
+end
+
+def assign_create_question_2
+  @question2 = create(:question2)
+  @quiz2.questions << @question2
 end

@@ -86,10 +86,13 @@ module Api
 
 			ids.each do |id|
 				if (current_instructor.quizzes.exists?(:id => id))
-				Quiz.find(id).destroy
+					quiz = Quiz.find(id) 
+					quiz.questions.each do |question|
+						question.destroy
+					end
+					quiz.destroy
+				end
 			end
-			end
-
 			render json: {info:"deleted"}, status: 200		
 		end
 		#This method creates new question by taking the question attributes attributes from JSON object
