@@ -204,8 +204,8 @@ module Api
 
 
     	def mark_quiz
-	        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
-	        my_answers = params[:answers_stuff][:answers]
+	        my_quiz = Quiz.find_by_id(params[:quiz_id])
+	        my_answers = params[:answers]
 
 	        if(my_quiz == nil)
 	        	render status: 404 , 
@@ -215,7 +215,7 @@ module Api
 	        	render status: 404 , 
 	        		   json: { error: "answers not properly sent" }
 			else   
-	        	my_quiz_questions = my_quiz.questions  
+	        	my_quiz_questions = my_quiz.questions.reverse  
 	        	quiz_groups = my_quiz.groups 
 	         	student_groups = current_student.groups
 	         	found = 0
@@ -231,7 +231,7 @@ module Api
 	                              }
 				else                
 	        		counter = 0 
-	        		my_result =0
+	        		my_result = 0
 	        		my_quiz_questions.each do |question|
 		         		if(my_answers[counter] == question.right_answer)
 		          			my_result = my_result + question.mark 
