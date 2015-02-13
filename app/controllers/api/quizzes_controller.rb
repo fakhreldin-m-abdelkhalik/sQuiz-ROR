@@ -59,14 +59,28 @@ module Api
 					if((params[:expiry_date]).to_datetime > DateTime.current) 
 						quiz = Quiz.find(params[:id])
 						group = Group.find(params[:group_id])
-						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
-							quiz.publish_quiz(params[:group_id])
-							render json: { info: "published" }, status: 202
+
+						if( group.quizzes.exists?(:id => params[:id]) )
+							if( quiz.expiry_date < DateTime.current )
+								if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+									quiz.publish_quiz(params[:group_id])
+									render json: { info: "published" }, status: 202
+								else
+									render json: { error: quiz.errors }, status: 422
+								end
+							else
+								render json: { error: "Quiz is already published to this group" }, status: 422
+							end
 						else
-							render json: { error: quiz.errors }, status: 422
+							if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+								quiz.publish_quiz(params[:group_id])
+								render json: { info: "published" }, status: 202
+							else
+								render json: { error: quiz.errors }, status: 422
+							end
 						end
 					else
-						render json: { error: "Expiry Date must be in the future." }, status: 422
+						render json: { error: "Expiry Date must be in the future" }, status: 422
 					end
 				else
 					render json: { error: "Group is not found" }, status: 404
