@@ -4,7 +4,9 @@ Rails.application.routes.draw do
   devise_for :students
   
   namespace :api do
-    resources :quizzes, except: [:update,:edit,:index,:show]
+    resources :quizzes, except: [:create,:update,:edit,:index,:show,:destroy]
+    post '/quizzes/create'=>'quizzes#create'
+    post '/quizzes/delete'=>'quizzes#destroy'
     get '/student/quizzes', to: 'quizzes#student_index'
     get '/instructor/quizzes', to: 'quizzes#instructor_index'
     get '/student/quizzes/:id', to: 'quizzes#student_show'
@@ -37,7 +39,10 @@ Rails.application.routes.draw do
     post 'groups/:group_id/student/remove' => 'groups#remove'
     post 'groups/create'=>'groups#create'
     post 'student/mark_quiz', to: 'quizzes#mark_quiz'
+
+    get '/instructor/quizzes/:quiz_id/:student_id', to: 'quizzes#instructor_student_mark'
     post 'groups/delete'=>'groups#destroy'
+    get  'groups/:id/quizzes', to:'groups#show_quizzes'
   end
 
 end

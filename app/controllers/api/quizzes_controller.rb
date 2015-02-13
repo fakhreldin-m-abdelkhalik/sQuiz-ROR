@@ -46,7 +46,7 @@ module Api
 			quiz = Quiz.new(quiz_params)
 			if quiz.save
 				current_instructor.quizzes << quiz
-				render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 201
+				render json: { id: quiz.id }, status: 201
 			else
 				render json: { error: quiz.errors }, status: 422
 			end
@@ -76,34 +76,39 @@ module Api
 		end
 		#This method deletes the quiz and the corresponding questions
 		def destroy
-			if (current_instructor.quizzes.exists?(:id => params[:id]))
-				quiz = Quiz.find(params[:id])
-				quiz.questions.each do |question|
-					question.destroy
-				end
-				quiz.destroy
-				render json: { success: true, data:{}, :info => "Quiz is successfully deleted." }, status: 200
-			else
-				render json: { error:"Quiz is not found" }, status: 404
-			end		
+			ids = []
+			i = 0
+
+			while ( params["_json"][i] != nil ) do
+				ids << (params["_json"][i]["id"]).to_i 
+				i = i + 1
+			end
+
+			ids.each do |id|
+				if (current_instructor.quizzes.exists?(:id => id))
+				Quiz.find(id).destroy
+			end
+			end
+
+			render json: {info:"deleted"}, status: 200		
 		end
 		#This method creates new question by taking the question attributes attributes from JSON object
 		#and assigns this question to the current quiz using the sent quiz id.  
 		#and it returns the JSON representation of the newly created object.
 		def add_question
-			question = Question.new(question_params)
-			if (current_instructor.quizzes.exists?(:id => params[:quiz_id]))
-				quiz = Quiz.find(params[:quiz_id])
-				if question.save
+			if(current_instructor.quizzes.exists?(:id => params[:quiz_id]))
+				quiz = current_instructor.quizzes.find(params[:quiz_id])
+				no = quiz.no_of_MCQ + quiz.no_of_rearrangeQ	
+				no.times do |n|
+					question = Question.create((params["_json"][n]).permit([:text, :mark, :right_answer, :choices => []]))
 					quiz.questions << question
-					render json: { success: true, data:{:question => question}, info:{} }, status: 201
-				else
-					render json: { error: question.errors }, status: 422
 				end
+				render json: { info: "created"}, status: 201
 			else
 				render json: { error:"Quiz is not found" }, status: 422
-			end	
+			end
 		end
+
 		#This methods edits a question in quiz by taking the desired new question attributes from JSON objec
 		#and changes the current question atrributes.
 		def edit_question
@@ -158,6 +163,41 @@ module Api
 						json:{success: true , results: grades}
 			end
 		end
+
+
+		def instructor_student_mark
+        	my_quiz = Quiz.find_by_id(params[:quiz_id])
+        	my_student = Student.find_by_id(params[:student_id])
+        	if(my_quiz == nil)
+        		render  status: 404 , 
+            		    json: { error: "Quiz Not Found" } 
+
+            elsif(my_student==nil) 
+            	render  status: 404 , 
+            		    json: { error: "Student not found" }              
+        	elsif(current_instructor.quizzes.exists?(:id => my_quiz.id))
+        		if(my_student.quizzes.exists?(:id => my_quiz.id))
+        			puts my_quiz.expiry_date
+        			if(my_quiz.expiry_date < DateTime.current )
+						student_quiz_obj = StudentResultQuiz.where(student_id:my_student.id).where(quiz_id:my_quiz.id).first	
+						answers = student_quiz_obj.student_ans
+						student_result = student_quiz_obj.result
+						questions = my_quiz.questions
+						render json: {success:true, data:{:student_answers => answers, :result => student_result},info:"done !" }, status: 200
+					else
+						render json: { error: "Quiz hasn't expired yet" }  , status: 200
+					end
+        		else
+        			render  status: 404 , 
+            		   json: { error: "Student not allowed this quiz" } 
+        		end	
+        	else	
+        		render  status: 404 , 
+            		    json: { error: "You don't own this Quiz as an instructor" } 
+        	end	
+		end	
+
+
 
     	def mark_quiz
 	        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
