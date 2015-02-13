@@ -120,8 +120,7 @@ RSpec.describe Api::GroupsController, :type => :controller do
 			@student.groups << @group
 			get :student_index 
 			group_response = json(response.body)
-			expect(group_response[:success]).to eql(true)
-			expect((group_response[:data][:groups]).first[:name]).to eql(@group.name)
+			expect((group_response).first[:name]).to eql(@group.name)
 		end
 	end	
 
