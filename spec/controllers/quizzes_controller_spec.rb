@@ -177,26 +177,31 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    it "adds question to a specific quiz" do
 	    	sign_in @instructor
 	    	assign_create_quiz_group
-	    	@group.students << @student
-	    	post :add_question, { quiz_id: @quiz.id, question: {text: "Example Question?", mark: 2, right_answer: "a", choices: ["a","b","c","d"]}}
+	    	post :add_question, quiz_id: @quiz.id, _json: [{text: "Example Question?", mark: 2, right_answer: "a", choices: ["a","b","c","d"]},
+	    	{text: "Example Question No 2?", mark: 10, right_answer: "d", choices: ["a","b","c","d"]}]
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(201)
-	     	expect(quiz_response[:data][:question][:text]).to eql("Example Question?")		
-	    	expect(quiz_response[:data][:question][:mark]).to eql(2.0)
-	    	expect(quiz_response[:data][:question][:choices]).to eql(["a","b","c","d"])
-	    	expect(quiz_response[:data][:question][:right_answer]).to eql("a")
+	     	expect(quiz_response[:info]).to eql("created")
+	     	expect(@quiz.questions.first.text).to eql("Example Question?")		
+	    	expect(@quiz.questions.first.mark).to eql(2.0)
+	    	expect(@quiz.questions.first.choices).to eql(["a","b","c","d"])
+	    	expect(@quiz.questions.first.right_answer).to eql("a")
+	    	expect(@quiz.questions.second.text).to eql("Example Question No 2?")		
+	    	expect(@quiz.questions.second.mark).to eql(10.0)
+	    	expect(@quiz.questions.second.choices).to eql(["a","b","c","d"])
+	    	expect(@quiz.questions.second.right_answer).to eql("d")
 	    end
     end
 
     describe "add question method failing" do
-	    it "fails to add question to a specific quiz due to validations failure" do
+	    it "fails to add question to a specific quiz due to not found quiz" do
 	    	sign_in @instructor
-	    	assign_create_quiz_group	
-	    	@group.students << @student
-	    	post :add_question, { quiz_id: @quiz.id, question: {text: "", mark: 2, right_answer: "a", choices: ["a","b","c","d"]}}
+	    	assign_create_quiz_group
+	    	post :add_question, quiz_id: 25, _json: [{text: "Example Question?", mark: 2, right_answer: "a", choices: ["a","b","c","d"]},
+	    	{text: "Example Question No 2?", mark: 10, right_answer: "d", choices: ["a","b","c","d"]}]
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(422)
-	    	expect(quiz_response[:error][:text]).to eq(["can't be blank"])
+	     	expect(quiz_response[:error]).to eql("Quiz is not found")
 	    end
     end
 
@@ -315,7 +320,6 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           @quiz.questions << @question_1
           @quiz.questions << @question_2
           @quiz.questions << @question_3
-          #@group.students << @student
           @quiz.publish_quiz(@group.id)
 
           post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
@@ -346,7 +350,6 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
           quiz_response = json(response.body)
           expect(response.status).to eq(200)
-          ###############################################  
       	  sign_in @instructor
           get :instructor_student_mark ,quiz_id:@quiz.id ,student_id:@student.id
           quiz_response = json(response.body)
@@ -371,8 +374,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           @quiz.save 
           post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
           quiz_response = json(response.body)
-          expect(response.status).to eq(200)
-          ###############################################  
+          expect(response.status).to eq(200) 
       	  sign_in @instructor
           get :instructor_student_mark ,quiz_id: 2 ,student_id:@student.id
           quiz_response = json(response.body)

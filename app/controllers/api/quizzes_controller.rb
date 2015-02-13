@@ -250,5 +250,8 @@ module Api
 		def quiz_params
 			params.require(:quiz).permit(:name, :subject, :duration, :no_of_MCQ, :no_of_rearrangeQ)
 		end
+		def question_params
+			params.require(:question).permit(:text, :mark, :right_answer, :choices => [])
+		end
 	end
 end

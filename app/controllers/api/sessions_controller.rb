@@ -10,16 +10,14 @@ class Api::SessionsController < ApplicationController
     if instructor && instructor.valid_password?(params[:password])
         sign_in(instructor)
         render status: 200,
-           json: { success: true,
-                      info: "Logged in",
+           json: { type: "instructor",
                       auth_token: current_instructor.authentication_token }
     else
       student = Student.find_for_database_authentication(:email => params[:email])
       if student && student.valid_password?(params[:password])
         sign_in(student)
         render status: 200,
-           json: { success: true,
-                      info: "Logged in",
+           json: { type: "student",
                       auth_token: current_student.authentication_token }
       else
         render status: 401,
