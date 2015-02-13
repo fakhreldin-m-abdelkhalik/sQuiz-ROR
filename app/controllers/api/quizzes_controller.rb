@@ -34,7 +34,7 @@ module Api
 		def instructor_show
 			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
-				questions = quiz.questions
+				questions = quiz.questions.order(created_at: :desc)
 				render json: questions, status: 200
 			else
 				render json: { error:"Quiz is not found" }, status: 404
