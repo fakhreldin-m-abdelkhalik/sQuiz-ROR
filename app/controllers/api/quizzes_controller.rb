@@ -6,7 +6,7 @@ module Api
 		#This method returns to the student list of her/his quizzes.
 		def student_index
 			quizzes = current_student.quizzes
-			render json: quizzes.as_json(:only => [:name, :id, :created_at]), status: 200
+			render json: quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show
@@ -28,14 +28,14 @@ module Api
 		#This method returns to the instructor list of her/his quizzes.
 		def instructor_index
 			quizzes = current_instructor.quizzes
-			render json: quizzes.as_json(:only => [:id, :name, :created_at]), status: 200
+			render json: quizzes.as_json(:only => [:id, :name, :created_at, :no_of_MCQ, :no_of_rearrangeQ]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the instructor.
 		def instructor_show
 			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
 				questions = quiz.questions
-				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
+				render json: questions, status: 200
 			else
 				render json: { error:"Quiz is not found" }, status: 404
 			end
