@@ -60,7 +60,7 @@ module Api
 						group = Group.find(params[:group_id])
 						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
 							quiz.publish_quiz(params[:group_id])
-							render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+							render json: quiz, status: 202
 						else
 							render json: { error: quiz.errors }, status: 422
 						end
