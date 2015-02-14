@@ -234,7 +234,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @group.students << @student
       @quiz.publish_quiz(@group.id)
 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id}
+      post :mark_quiz , quiz_id:@quiz.id
 
       quiz_response = json(response.body)
       expect(response.status).to eq(404)
@@ -254,7 +254,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @group.students << @student
       @quiz.publish_quiz(@group.id)
 
-      post :mark_quiz , answers_stuff:{quiz_id:3 ,answers:["a","b","c"]}
+      post :mark_quiz , quiz_id:3 ,answers:["a","b","c"]
 
       quiz_response = json(response.body)
       expect(response.status).to eq(404)
@@ -273,7 +273,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.questions << @question_3
       @quiz.publish_quiz(@group.id)
 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+      post :mark_quiz ,quiz_id:@quiz.id ,answers:["a","b","c"]
 
       quiz_response = json(response.body)
       expect(response.status).to eq(404)
@@ -295,7 +295,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.publish_quiz(@group.id)
       @quiz.expiry_date = "2001-02-20 11:25:09 +0200".to_datetime
       @quiz.save 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+      post :mark_quiz , quiz_id:@quiz.id ,answers:["c","b","a"]
       quiz_response = json(response.body)
       expect(response.status).to eq(200)
   	  sign_in @instructor
@@ -318,7 +318,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.publish_quiz(@group.id)
       @quiz.expiry_date = "2001-02-20 11:25:09 +0200".to_datetime
       @quiz.save 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+      post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","a"]
       quiz_response = json(response.body)
       expect(response.status).to eq(200) 
       sign_in @instructor
@@ -341,7 +341,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.publish_quiz(@group.id)
       @quiz.expiry_date = "2020-02-20 11:25:09 +0200".to_datetime
       @quiz.save 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+      post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","a"]
       quiz_response = json(response.body)
       expect(response.status).to eq(200)
       sign_in @instructor
@@ -364,7 +364,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.publish_quiz(@group.id)
       @quiz.expiry_date = "2002-02-20 11:25:09 +0200".to_datetime
       @quiz.save 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+      post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","a"]
       quiz_response = json(response.body)
       expect(response.status).to eq(200)
       sign_in @instructor
@@ -388,7 +388,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @quiz.publish_quiz(@group.id)
       @quiz.expiry_date = "2002-02-20 11:25:09 +0200".to_datetime
       @quiz.save 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","a"]}
+      post :mark_quiz ,quiz_id:@quiz.id ,answers:["a","b","a"]
       quiz_response = json(response.body)
       expect(response.status).to eq(200)
       @instructor_2 = create(:instructor1)
@@ -413,7 +413,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           @quiz.questions << @question_3
           @group.students << @student
           @quiz.publish_quiz(@group.id)
-          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+          post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","c"]
           post :group_result , quiz_id: @quiz.id , group_id: @group.id
           quiz_response = json(response.body)
           expect(response.status).to eq(200)
@@ -432,7 +432,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           @quiz.questions << @question_3
           @group.students << @student
           @quiz.publish_quiz(@group.id)
-          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+          post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","c"]
           post :group_result , quiz_id: @quiz.id , group_id: 5
           quiz_response = json(response.body)
           expect(response.status).to eq(422)
@@ -452,7 +452,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
           @quiz.questions << @question_3
           @group.students << @student
           @quiz.publish_quiz(@group.id)
-          post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+          post :mark_quiz , quiz_id:@quiz.id ,answers:["a","b","c"]
           post :group_result , quiz_id: 4 , group_id: @group.id
           quiz_response = json(response.body)
           expect(response.status).to eq(422)
