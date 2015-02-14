@@ -35,10 +35,10 @@ module Api
 						student_result = 0
 						answers = []
 					end
-					questions = quiz.questions
+					questions = quiz.questionsSS
 					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
 				elsif (student_quiz_obj.result == nil)
-					questions = quiz.questions.reverse
+					questions = quiz.questions
 					render json: questions, status: 200
 				else
 					render json: { error:"You have already taken the quiz" }, status: 422
