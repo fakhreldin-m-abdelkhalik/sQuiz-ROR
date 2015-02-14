@@ -201,7 +201,6 @@ module Api
             		    json: { error: "Student not found" }              
         	elsif(current_instructor.quizzes.exists?(:id => my_quiz.id))
         		if(my_student.quizzes.exists?(:id => my_quiz.id))
-        			puts my_quiz.expiry_date
         			if(my_quiz.expiry_date < DateTime.current )
 						student_quiz_obj = StudentResultQuiz.where(student_id:my_student.id).where(quiz_id:my_quiz.id).first	
 						answers = student_quiz_obj.student_ans
