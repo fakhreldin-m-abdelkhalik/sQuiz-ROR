@@ -142,7 +142,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       post :publish, { id: @quiz.id, group_id: @group.id, expiry_date: (DateTime.now - 1.day).to_s}
       quiz_response = json(response.body)
       expect(response.status).to eq(422)
-      expect(quiz_response[:error]).to eql("Expiry Date must be in the future.")
+      expect(quiz_response[:error]).to eql("Expiry Date must be in the future")
       expect(@group.quizzes.find_by_id(@quiz.id)).to eql(nil)
       expect(@student.quizzes.find_by_id(@quiz.id)).to eql(nil)   
     end

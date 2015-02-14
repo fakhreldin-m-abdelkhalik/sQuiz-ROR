@@ -12,15 +12,21 @@ module Api
 		def student_show
 			if (current_student.quizzes.exists?(:id => params[:id]))
 				quiz = current_student.quizzes.find(params[:id])
-				if( quiz.expiry_date < DateTime.current )
-					student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
+				student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first
+				if( quiz.expiry_date < DateTime.current ) 	
 					answers = student_quiz_obj.student_ans
 					student_result = student_quiz_obj.result
+					if (student_result == nil)
+						student_result = 0
+						answers = []
+					end
 					questions = quiz.questions
 					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
-				else
+				elsif (student_quiz_obj.result == nil)
 					questions = quiz.questions.reverse
 					render json: questions, status: 200
+				else
+					render json: { error:"You have already taken the quiz" }, status: 422
 				end
 			else
 				render json: { error:"Quiz is not found" }, status: 404
