@@ -6,7 +6,22 @@ module Api
 		#This method returns to the student list of her/his quizzes.
 		def student_index
 			quizzes = current_student.quizzes
-			render json: quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration]), status: 200
+			i = 0
+			temp={}
+			sent_quizzes=[]
+			quizzes.each do |quiz|
+				student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first
+				temp[:id] = quizzes[i][:id]
+				temp[:name] = quizzes[i][:name]
+				temp[:duration] = quizzes[i][:duration]
+				temp[:no_of_MCQ] = quizzes[i][:no_of_MCQ]
+				temp[:no_of_rearrangeQ] = quizzes[i][:no_of_rearrangeQ]
+				temp[:created_at] = quizzes[i][:created_at]
+				temp[:taken] = student_quiz_obj.taken
+				sent_quizzes << temp
+				i = i + 1
+			end
+			render json: sent_quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration, :taken]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show
