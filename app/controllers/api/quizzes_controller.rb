@@ -178,7 +178,7 @@ module Api
 				end
 
 				render status: 200,
-						json:{ grades }
+						json: grades 
 			end
 		end
 
