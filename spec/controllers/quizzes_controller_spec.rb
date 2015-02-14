@@ -24,21 +24,21 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     it "returns a specific quiz and its questions" do
     	sign_in @student
     	@quiz = create(:quiz)
-    	@quiz.update(expiry_date: DateTime.now - 1.hour)
+    	@quiz.update(expiry_date: DateTime.now + 1.hour)
     	assign_create_question
     	@student.quizzes << @quiz
     	get :student_show, id: @quiz.id
     	quiz_response = json(response.body)
-    	expect(response.status).to eq(200)
-    	expect(quiz_response[:success]).to eql(true)
-     	expect(quiz_response[:data][:quiz][:name]).to eql(@quiz.name)
-     	expect((quiz_response[:data][:questions]).first[:text]).to eql(@question.text)	
+      expect(response.status).to eq(200)
+      expect(quiz_response.as_json[0]["text"]).to eql(@question.text)
+      expect(quiz_response.as_json[0]["mark"]).to eql(@question.mark)
+      expect(quiz_response.as_json[0]["choices"]).to eql(@question.choices)
+      expect(quiz_response.as_json[0]["right_answer"]).to eql(@question.right_answer)	
     end
 
     it "fails to return a specific quiz and its questions because quiz is not found" do
       sign_in @student
       @quiz = create(:quiz)
-      assign_create_question
       @student.quizzes << @quiz
       get :student_show, id: 25
       quiz_response = json(response.body)
@@ -69,9 +69,10 @@ RSpec.describe Api::QuizzesController, :type => :controller do
 	    	get :instructor_show, id: @quiz.id
 	    	quiz_response = json(response.body)
 	    	expect(response.status).to eq(200)
-	    	expect(quiz_response[:success]).to eql(true)
-	     	expect(quiz_response[:data][:quiz][:name]).to eql(@quiz.name)
-	     	expect((quiz_response[:data][:questions]).first[:text]).to eql(@question.text)	
+	     	expect(quiz_response.as_json[0]["text"]).to eql(@question.text)
+	     	expect(quiz_response.as_json[0]["mark"]).to eql(@question.mark)
+        expect(quiz_response.as_json[0]["choices"]).to eql(@question.choices)
+        expect(quiz_response.as_json[0]["right_answer"]).to eql(@question.right_answer)	
 	    end
 
       it "fails to return a specific quiz and its questions because quiz is not found" do
@@ -129,7 +130,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
     	post :publish, { id: @quiz.id, group_id: @group.id, expiry_date: (DateTime.now + 1.day).to_s}
     	quiz_response = json(response.body)
     	expect(response.status).to eq(202)
-     	expect(quiz_response[:success]).to eql(true)
+     	expect(quiz_response[:info]).to eql("published")
      	expect(@group.quizzes.find_by_id(@quiz.id)).to eql(@quiz)
      	expect(@student.quizzes.find_by_id(@quiz.id)).to eql(@quiz)		
     end
@@ -141,7 +142,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       post :publish, { id: @quiz.id, group_id: @group.id, expiry_date: (DateTime.now - 1.day).to_s}
       quiz_response = json(response.body)
       expect(response.status).to eq(422)
-      expect(quiz_response[:error]).to eql("Expiry Date must be in the future.")
+      expect(quiz_response[:error]).to eql("Expiry Date must be in the future")
       expect(@group.quizzes.find_by_id(@quiz.id)).to eql(nil)
       expect(@student.quizzes.find_by_id(@quiz.id)).to eql(nil)   
     end
@@ -214,7 +215,7 @@ RSpec.describe Api::QuizzesController, :type => :controller do
       @group.students << @student
       @quiz.publish_quiz(@group.id)
 
-      post :mark_quiz , answers_stuff:{quiz_id:@quiz.id ,answers:["a","b","c"]}
+      post :mark_quiz , {quiz_id:@quiz.id ,answers:["a","b","c"]}
 
       quiz_response = json(response.body)
       expect(response.status).to eq(200)

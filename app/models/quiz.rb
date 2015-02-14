@@ -16,8 +16,9 @@ class Quiz < ActiveRecord::Base
 		group = Group.find(group_id)
 		quiz = self
 		group.quizzes << quiz
-		group.students.each  do |student|
-		student.quizzes << quiz 
+		group.students.each  do |student|	
+			student.quizzes << quiz 
+			StudentResultQuiz.where(student.id).where(quiz.id).first.taken = 0
 		end
 	end
 end

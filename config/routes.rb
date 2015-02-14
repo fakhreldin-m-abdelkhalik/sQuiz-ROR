@@ -38,7 +38,7 @@ Rails.application.routes.draw do
     post 'groups/:group_id/student/add' => 'groups#add'
     post 'groups/:group_id/student/remove' => 'groups#remove'
     post 'groups/create'=>'groups#create'
-    post 'student/mark_quiz', to: 'quizzes#mark_quiz'
+    post 'student/markquiz/:quiz_id', to: 'quizzes#mark_quiz'
 
     get '/instructor/quizzes/:quiz_id/:student_id', to: 'quizzes#instructor_student_mark'
     post 'groups/delete'=>'groups#destroy'

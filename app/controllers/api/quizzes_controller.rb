@@ -6,20 +6,27 @@ module Api
 		#This method returns to the student list of her/his quizzes.
 		def student_index
 			quizzes = current_student.quizzes
-			render json: quizzes.as_json(:only => [:name, :id, :created_at]), status: 200
+			render json: quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show
 			if (current_student.quizzes.exists?(:id => params[:id]))
 				quiz = current_student.quizzes.find(params[:id])
-				if( quiz.expiry_date < DateTime.current )
-					student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first	
+				student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first
+				if( quiz.expiry_date < DateTime.current ) 	
 					answers = student_quiz_obj.student_ans
 					student_result = student_quiz_obj.result
+					if (student_result == nil)
+						student_result = 0
+						answers = []
+					end
 					questions = quiz.questions
-					render json: {success:true, data:{:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result},info:{} }, status: 200
+					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
+				elsif (student_quiz_obj.result == nil)
+					questions = quiz.questions.reverse
+					render json: questions, status: 200
 				else
-					render json: { error:"Quiz hasn't expired yet."} , status: 200
+					render json: { error:"You have already taken the quiz" }, status: 422
 				end
 			else
 				render json: { error:"Quiz is not found" }, status: 404
@@ -28,14 +35,14 @@ module Api
 		#This method returns to the instructor list of her/his quizzes.
 		def instructor_index
 			quizzes = current_instructor.quizzes
-			render json: quizzes.as_json(:only => [:id, :name, :created_at]), status: 200
+			render json: quizzes.as_json(:only => [:id, :name, :created_at, :no_of_MCQ, :no_of_rearrangeQ]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the instructor.
 		def instructor_show
 			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
-				questions = quiz.questions
-				render json: {success:true, data:{:quiz => quiz, :questions => questions, info:{}} }, status: 200
+				questions = quiz.questions.reverse
+				render json: questions, status: 200
 			else
 				render json: { error:"Quiz is not found" }, status: 404
 			end
@@ -58,14 +65,28 @@ module Api
 					if((params[:expiry_date]).to_datetime > DateTime.current) 
 						quiz = Quiz.find(params[:id])
 						group = Group.find(params[:group_id])
-						if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
-							quiz.publish_quiz(params[:group_id])
-							render json: { success: true, data:{:quiz => quiz}, info:{} }, status: 202
+
+						if( group.quizzes.exists?(:id => params[:id]) )
+							if( quiz.expiry_date < DateTime.current )
+								if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+									quiz.publish_quiz(params[:group_id])
+									render json: { info: "published" }, status: 202
+								else
+									render json: { error: quiz.errors }, status: 422
+								end
+							else
+								render json: { error: "Quiz is already published to this group" }, status: 422
+							end
 						else
-							render json: { error: quiz.errors }, status: 422
+							if (quiz.update(expiry_date: (params[:expiry_date]).to_datetime))
+								quiz.publish_quiz(params[:group_id])
+								render json: { info: "published" }, status: 202
+							else
+								render json: { error: quiz.errors }, status: 422
+							end
 						end
 					else
-						render json: { error: "Expiry Date must be in the future." }, status: 422
+						render json: { error: "Expiry Date must be in the future" }, status: 422
 					end
 				else
 					render json: { error: "Group is not found" }, status: 404
@@ -203,8 +224,8 @@ module Api
 
 
     	def mark_quiz
-	        my_quiz = Quiz.find_by_id(params[:answers_stuff][:quiz_id])
-	        my_answers = params[:answers_stuff][:answers]
+	        my_quiz = Quiz.find_by_id(params[:quiz_id])
+	        my_answers = params[:answers]
 
 	        if(my_quiz == nil)
 	        	render status: 404 , 
@@ -214,7 +235,7 @@ module Api
 	        	render status: 404 , 
 	        		   json: { error: "answers not properly sent" }
 			else   
-	        	my_quiz_questions = my_quiz.questions  
+	        	my_quiz_questions = my_quiz.questions.reverse  
 	        	quiz_groups = my_quiz.groups 
 	         	student_groups = current_student.groups
 	         	found = 0
@@ -230,7 +251,7 @@ module Api
 	                              }
 				else                
 	        		counter = 0 
-	        		my_result =0
+	        		my_result = 0
 	        		my_quiz_questions.each do |question|
 		         		if(my_answers[counter] == question.right_answer)
 		          			my_result = my_result + question.mark 
@@ -240,6 +261,7 @@ module Api
 	        		current_student_result_quiz = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:my_quiz.id).first
 	        		current_student_result_quiz.result = my_result 
 	        		current_student_result_quiz.student_ans =my_answers
+	        		current_student_result_quiz.taken = 1
 	       			if(current_student_result_quiz.save)
 	      	 			render status: 200 , 
 	            			   json: {
