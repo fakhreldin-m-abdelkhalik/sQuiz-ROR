@@ -161,14 +161,10 @@ module Api
 
 			if(!group || group.instructor != current_instructor)
 				render status: :unprocessable_entity,
-             	json: { success: false,
-                        info: "Group does not exist",
-                        data: {} }  
+             	json: { error: "Group does not exist" }  
 			elsif(!quiz || quiz.instructor != current_instructor)
 				render status: :unprocessable_entity,
-             	json: { success: false,
-                        info: "Quiz does not exist",
-                        data: {} }  
+             	json: { error: "Group does not exist" }  
 			else
 				list = quiz.student_result_quizzes
 				return_result = {}
@@ -182,7 +178,7 @@ module Api
 				end
 
 				render status: 200,
-						json:{success: true , results: grades}
+						json:{ grades }
 			end
 		end
 
