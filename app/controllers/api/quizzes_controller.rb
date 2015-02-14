@@ -261,6 +261,7 @@ module Api
 	        		current_student_result_quiz = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:my_quiz.id).first
 	        		current_student_result_quiz.result = my_result 
 	        		current_student_result_quiz.student_ans =my_answers
+	        		current_student_result_quiz.taken = 1
 	       			if(current_student_result_quiz.save)
 	      	 			render status: 200 , 
 	            			   json: {
