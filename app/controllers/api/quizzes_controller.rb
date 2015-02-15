@@ -21,7 +21,7 @@ module Api
 				sent_quizzes << temp
 				i = i + 1
 			end
-			render json: sent_quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration, :taken]), status: 200
+			render json: quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration, :taken]), status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show
@@ -183,13 +183,19 @@ module Api
 			else
 				list = quiz.student_result_quizzes
 				return_result = {}
-				grades = []
-				
+				grades = Array.new
+				true_students_result_quiz = Array.new
+				#puts group.students
+
 				list.each do |student_result_quiz|
-					if group.students.include?(student_result_quiz.student)
-						return_result[student_result_quiz.student.name] = student_result_quiz.result
-						grades << return_result
+					#puts student_result_quiz
+					if (group.students.include?(student_result_quiz.student) && student_result_quiz.group_id == group.id)
+						true_students_result_quiz << student_result_quiz
 					end
+				end
+				puts true_students_result_quiz
+				true_students_result_quiz.each do |true_students_result_quiz|
+					
 				end
 
 				render status: 200,
