@@ -18,7 +18,9 @@ module Api
 				temp[:no_of_rearrangeQ] = quizzes[i][:no_of_rearrangeQ]
 				temp[:created_at] = quizzes[i][:created_at]
 				temp[:taken] = student_quiz_obj.taken
+				puts temp
 				sent_quizzes << temp
+				puts sent_quizzes
 				i = i + 1
 			end
 			render json: quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration, :taken]), status: 200
