@@ -185,10 +185,8 @@ module Api
 				return_result = {}
 				grades = Array.new
 				true_students_result_quiz = Array.new
-				#puts group.students
 
 				list.each do |student_result_quiz|
-					#puts student_result_quiz
 					if (group.students.include?(student_result_quiz.student) && student_result_quiz.group_id == group.id)
 						true_students_result_quiz << student_result_quiz
 					end
