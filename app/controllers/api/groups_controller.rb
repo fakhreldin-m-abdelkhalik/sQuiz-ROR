@@ -116,7 +116,7 @@ class Api::GroupsController < ApplicationController
         render status: 400, json: { error: "Group not found" }
       elsif(group.instructor == current_instructor) 
         quizzes = group.quizzes
-        render json: quizzes.as_json(:only => [:name, :id]), status: 200
+        render json: quizzes.as_json(:only => [:id, :name, :no_of_MCQ, :no_of_rearrangeQ]), status: 200
        else
         render status: 400, json: { error: "You are not the instructor of this group" }
       end  
