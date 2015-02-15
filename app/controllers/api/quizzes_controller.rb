@@ -35,7 +35,7 @@ module Api
 						student_result = 0
 						answers = []
 					end
-					questions = quiz.questionsSS
+					questions = quiz.questions
 					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
 				elsif (student_quiz_obj.result == nil)
 					questions = quiz.questions
@@ -56,7 +56,7 @@ module Api
 		def instructor_show
 			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
-				questions = quiz.questions.reverse
+				questions = quiz.questions
 				render json: questions, status: 200
 			else
 				render json: { error:"Quiz is not found" }, status: 404
