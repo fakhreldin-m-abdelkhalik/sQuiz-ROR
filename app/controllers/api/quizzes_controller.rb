@@ -193,13 +193,14 @@ module Api
 						true_students_result_quiz << student_result_quiz
 					end
 				end
-				puts true_students_result_quiz
+
 				true_students_result_quiz.each do |true_students_result_quiz|
-					
+					return_result[true_students_result_quiz.student.name] = true_students_result_quiz.result
 				end
 
+				puts return_result
 				render status: 200,
-						json: grades 
+						json: return_result 
 			end
 		end
 
