@@ -7,21 +7,20 @@ module Api
 		def student_index
 			quizzes = current_student.quizzes
 			i = 0
-			temp={}
-			sent_quizzes=[]
+			sent_quizzes = []
 			quizzes.each do |quiz|
+				sent_quizzes [i] = {}
 				student_quiz_obj = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:quiz.id).first
-				temp[:id] = quizzes[i][:id]
-				temp[:name] = quizzes[i][:name]
-				temp[:duration] = quizzes[i][:duration]
-				temp[:no_of_MCQ] = quizzes[i][:no_of_MCQ]
-				temp[:no_of_rearrangeQ] = quizzes[i][:no_of_rearrangeQ]
-				temp[:created_at] = quizzes[i][:created_at]
-				temp[:taken] = student_quiz_obj.taken
-				sent_quizzes << temp
+				sent_quizzes[i][:id] = quizzes[i][:id]
+				sent_quizzes[i][:name] = quizzes[i][:name]
+				sent_quizzes[i][:duration] = quizzes[i][:duration]
+				sent_quizzes[i][:no_of_MCQ] = quizzes[i][:no_of_MCQ]
+				sent_quizzes[i][:no_of_rearrangeQ] = quizzes[i][:no_of_rearrangeQ]
+				sent_quizzes[i][:created_at] = quizzes[i][:created_at]
+				sent_quizzes[i][:taken] = student_quiz_obj.taken
 				i = i + 1
 			end
-			render json: sent_quizzes.as_json(:only => [:name, :id, :created_at, :no_of_MCQ, :no_of_rearrangeQ, :duration, :taken]), status: 200
+			render json: sent_quizzes, status: 200
 		end
 		#This method is used to get a specific quiz by taking the quiz id from the student.
 		def student_show
@@ -38,7 +37,7 @@ module Api
 					questions = quiz.questions
 					render json: {:quiz => quiz, :questions => questions, :student_answers => answers, :result => student_result}, status: 200
 				elsif (student_quiz_obj.result == nil)
-					questions = quiz.questions.reverse
+					questions = quiz.questions
 					render json: questions, status: 200
 				else
 					render json: { error:"You have already taken the quiz" }, status: 422
@@ -56,7 +55,7 @@ module Api
 		def instructor_show
 			if (current_instructor.quizzes.exists?(:id => params[:id]))
 				quiz = current_instructor.quizzes.find(params[:id])
-				questions = quiz.questions.reverse
+				questions = quiz.questions
 				render json: questions, status: 200
 			else
 				render json: { error:"Quiz is not found" }, status: 404
@@ -183,17 +182,22 @@ module Api
 			else
 				list = quiz.student_result_quizzes
 				return_result = {}
-				grades = []
-				
+				grades = Array.new
+				true_students_result_quiz = Array.new
+
 				list.each do |student_result_quiz|
-					if group.students.include?(student_result_quiz.student)
-						return_result[student_result_quiz.student.name] = student_result_quiz.result
-						grades << return_result
+					if (group.students.include?(student_result_quiz.student) && student_result_quiz.group_id == group.id)
+						true_students_result_quiz << student_result_quiz
 					end
 				end
 
+				true_students_result_quiz.each do |true_students_result_quiz|
+					return_result[true_students_result_quiz.student.name] = true_students_result_quiz.result
+				end
+
+				puts return_result
 				render status: 200,
-						json: grades 
+						json: return_result 
 			end
 		end
 
@@ -269,7 +273,7 @@ module Api
 	        		current_student_result_quiz = StudentResultQuiz.where(student_id:current_student.id).where(quiz_id:my_quiz.id).first
 	        		current_student_result_quiz.result = my_result 
 	        		current_student_result_quiz.student_ans =my_answers
-	        		current_student_result_quiz.taken = 1
+	        		current_student_result_quiz.update(taken: 1)
 	       			if(current_student_result_quiz.save)
 	      	 			render status: 200 , 
 	            			   json: {
