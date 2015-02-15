@@ -18,7 +18,7 @@ class Quiz < ActiveRecord::Base
 		group.quizzes << quiz
 		group.students.each  do |student|	
 			student.quizzes << quiz 
-			StudentResultQuiz.where(student.id).where(quiz.id).first.taken = 0
+			student.student_result_quizzes.find_by_id(quiz.id).taken = 0
 		end
 	end
 end
